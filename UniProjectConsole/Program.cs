@@ -54,12 +54,7 @@ namespace UARTConnection
                     #endregion
                     #region Record
                     case 3: //In Progress
-                        int recTime = 0;
-                        Console.WriteLine("How many seconds would like to record ?");
-                        recTime = int.Parse(Console.ReadLine());
-                        var timer = new System.Timers.Timer(10);
-                        //timer.Elapsed += decode(buffer);
-                        
+                        Record();         33333333               
                         break;
                     #endregion
                     #region Stop
@@ -184,6 +179,20 @@ namespace UARTConnection
                     Console.WriteLine(e.Message);
                 }
                 decode(buffer);
+            }
+            void Record()
+            {
+                int recTime = 0;
+                Console.WriteLine("How many seconds would like to record ?");
+                recTime = int.Parse(Console.ReadLine());
+                var data = new float[recTime * 100, 6];
+                for (int i = 0; i < data.Length(); i++)
+                {
+                    data[i, 0] = i / 100;
+                }
+                var timer = new System.Timers.Timer(10);
+                //timer.Elapsed += decode(buffer);
+                
             }
 
             void sendCommand(byte[] dataToSend)

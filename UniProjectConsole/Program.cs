@@ -115,6 +115,7 @@ namespace UARTConnection
                         //byte hexValue = Convert.ToByte(calcValue.ToString("X"),16);
                         for (int i = 0; i < 5; i++)
                         {
+                            Console.WriteLine((byte) i ,(byte) calcValue)
                             sendCommand(new byte[] {(byte)(i), (byte)calcValue});
                         }
                         serialPort.DiscardInBuffer();

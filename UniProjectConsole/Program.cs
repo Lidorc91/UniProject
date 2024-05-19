@@ -48,13 +48,27 @@ namespace UARTConnection
                     #region Read
                     case 2: //Read
                         startTransmit(serialPort);
-                        read(serialPort);
-                         //TEST
+                        int[] data = printRead(serialPort);
+                        Console.WriteLine("The Decoded packet is :");
+                        foreach (int a in data)
+                        {
+                            Console.WriteLine(a); //posts the decoded array one by one
+                        }
+                        //TEST
                         break;
                     #endregion
                     #region Record
                     case 3: //In Progress
-                        Record();         33333333               
+                        int[,] arr;
+                        arr = Record();     
+                        for (int i =0; i< arr.GetLength(0); i++)
+                        {
+                            for (int j = 0; j < arr.GetLength(1); j++)
+                            {
+                                Console.Write(arr[i, j] + " ");
+                            }
+                            Console.WriteLine();
+                        }
                         break;
                     #endregion
                     #region Stop
@@ -104,13 +118,14 @@ namespace UARTConnection
                     #endregion
                     #region Current Change 
                     case 7: //TEST
-                        Console.WriteLine("Pick a value between 0 and 200:");
+                        Console.WriteLine("Pick a value between 0 and 200: YTESTY");
                         int value = int.Parse(Console.ReadLine());
                         int calcValue = (int)(Math.Round((value * 126) / 198.5));
                         //byte hexValue = Convert.ToByte(calcValue.ToString("X"),16);
                         for (int i = 0; i < 5; i++)
                         {
-                            Console.WriteLine((byte) i ,(byte) calcValue)
+                            Console.WriteLine("the values being sent to the device are");
+                            Console.WriteLine("{0} :  {1}",i, calcValue);
                             sendCommand(new byte[] {(byte)(i), (byte)calcValue});
                         }
                         serialPort.DiscardInBuffer();
@@ -142,7 +157,6 @@ namespace UARTConnection
                     concatenatedHex.Append(a1); //this mean thats the 2nd number is the first element of the decoded number
                     arr[(i-1) / 4] = Convert.ToInt32(concatenatedHex.ToString(),16); //convert back to dec
                 }
-                Console.WriteLine("The Decoded packet is :");
 
                 //PD Switch
                 arr[2] += arr[3];
@@ -153,10 +167,10 @@ namespace UARTConnection
                 arr[4] = arr[3] - arr[4];
                 arr[3] -= arr[4];
 
-                foreach (int a in arr)
+                /*foreach (int a in arr)
                 {
                     Console.WriteLine(a); //posts the decoded array one by one
-                }
+                }*/
                 return arr;
             }
             void startTransmit(SerialPort serialPort)
@@ -165,7 +179,7 @@ namespace UARTConnection
                 sendCommand(dataToSend);                
             }
 
-            void read(SerialPort serialPort)
+            int[] printRead(SerialPort serialPort)
             {                
                 try
                 {
@@ -179,21 +193,38 @@ namespace UARTConnection
                 {
                     Console.WriteLine(e.Message);
                 }
-                decode(buffer);
+                int[] data = decode(buffer);
+                return data;
             }
-            void Record()
+            int[] read(SerialPort serialPort)
+            {
+                try
+                {
+                    int bytesRead = serialPort.Read(buffer, 0, bytesToRead);                    
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+                int[] data = decode(buffer);
+                return data;
+            }
+            int[,] Record()
             {
                 int recTime = 0;
                 Console.WriteLine("How many seconds would like to record ?");
                 recTime = int.Parse(Console.ReadLine());
-                var data = new float[recTime * 100, 6];
-                for (int i = 0; i < data.Length(); i++)
+                int[,] data = new int[recTime * 100,6];
+                for (int i = 0; i < data.GetLength(0); i++)
                 {
-                    data[i, 0] = i / 100;
+                    data[i, 0] = i+1; // FIX - Change to 0.01[s] jumps
+                    for (int j = 1; j < 6; j++)
+                    {
+                        int [] arr = read(serialPort);
+                        data[i,j] = arr[j-1];
+                    }
                 }
-                var timer = new System.Timers.Timer(10);
-                //timer.Elapsed += decode(buffer);
-                
+                return data;                
             }
 
             void sendCommand(byte[] dataToSend)
@@ -202,7 +233,6 @@ namespace UARTConnection
                 {
                     serialPort.Write(dataToSend, 0, dataToSend.Length);
                     Console.WriteLine("Operation Successful");
-                    serialPort.DiscardOutBuffer();
                 }
                 catch (Exception e)
                 {

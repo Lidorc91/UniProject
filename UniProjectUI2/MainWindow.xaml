@@ -29,12 +29,15 @@
             </TabItem>
             <TabItem x:Name="Dev_tab" Header="Developer" HorizontalContentAlignment="Stretch">
                 <Grid Background="#FFE5E5E5" Height="464" Margin="0,0,-140,0">
-                    <Label x:Name="Sensor_version" Content="Sensor_version" HorizontalAlignment="Left" Margin="10,75,0,0" VerticalAlignment="Top" Height="24"/>
+                    <Label x:Name="Sensor_version" Content="Sensor Version" HorizontalAlignment="Left" Margin="10,75,0,0" VerticalAlignment="Top" Height="24"/>
                     <Label x:Name="Recording_time" Content="Recording Time[s]" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" Height="24"/>
                     <Label x:Name="Current" Content="Current[mA]" HorizontalAlignment="Left" Margin="10,25,0,0" VerticalAlignment="Top" Height="24"/>
                     <TextBox x:Name="Current_inputbox" HorizontalAlignment="Left" Margin="120,25,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox"/>
                     <TextBox x:Name="Recording_time_inputbox" HorizontalAlignment="Left" Margin="120,50,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox"/>
-                    <ComboBox x:Name="Sensor_version1" HorizontalAlignment="Left" Margin="120,75,0,0" VerticalAlignment="Top" Width="80" Height="24"/>
+                    <ComboBox x:Name="Sensor_version1" HorizontalAlignment="Left" Margin="120,75,0,0" VerticalAlignment="Top" Width="80" Height="24" SelectedIndex="0"/>
+                        <ComboBoxItem Content= "V0">
+                        <ComboBoxItem Content= "V1">
+                    </ComboBox>
                     <GroupBox x:Name="LED_group" Header="LED Color" Background="#FFF3EBEB" Margin="125,116,607,252">
                         <Grid x:Name="led_goup_grid" Background="#FFF3EBEB">
                             <RadioButton x:Name="Green_LED" Content="Green" HorizontalAlignment="Left" Margin="4,23,0,0" VerticalAlignment="Top" GroupName="lights"/>

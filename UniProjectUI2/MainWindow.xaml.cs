@@ -58,7 +58,6 @@ namespace UniProjectUI2
         }
         private void InitializePlot()
         {
-            var logger = DevGraph.Plot.Add.DataLogger();
             DevGraph.Plot.Title("Detectors' intensity");
             DevGraph.Plot.XLabel("Time [sec]");
             DevGraph.Plot.YLabel("Intensity [a.u]");
@@ -72,6 +71,8 @@ namespace UniProjectUI2
         }
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
+            if(Play_button.Content == "Play")
+            {
             timer.Elapsed += GenerateRandomNumbers;
             timer.AutoReset = true; // Continuously fire the Elapsed event
             timer.Enabled = true; // Start the timer
@@ -79,8 +80,14 @@ namespace UniProjectUI2
             // Record the start time
             startTime = DateTime.Now;
 
-            // Optionally, disable the button to prevent multiple starts
-            Play_button.IsEnabled = false;
+            // Turn the play button into a Stop buttion
+            Play_button.Content = "Stop";
+            }
+            if(Play_button.Content == "Stop")
+            {
+                timer.Enabled = false;
+                Play_button.Content = "Play"
+            }
         }
         private DateTime startTime;
         private void GenerateRandomNumbers(object sender, ElapsedEventArgs e)
@@ -95,7 +102,7 @@ namespace UniProjectUI2
             //update Graph
             UpdatePlotWithNewData(elapsedTime.TotalSeconds, num1, num2);
 
-            if (elapsedTime.TotalSeconds >= 60) // One minute has passed
+            if (elapsedTime.TotalSeconds >= 100) // if enough time has passed
             {
                 ((System.Timers.Timer)sender).Stop(); // Stop the timer
             }

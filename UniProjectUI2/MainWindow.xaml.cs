@@ -26,7 +26,7 @@ namespace UniProjectUI2
     {
         readonly ScottPlot.Plottables.DataLogger Logger1;
         readonly ScottPlot.Plottables.DataLogger Logger2;
-        System.Timers.Timer timer = new System.Timers.Timer(1000);
+        System.Timers.Timer timer = new System.Timers.Timer(500);
         private double[] times; 
         private double[] values1;
         private double[] values2;
@@ -105,6 +105,53 @@ namespace UniProjectUI2
             if (elapsedTime.TotalSeconds >= 100) // if enough time has passed
             {
                 ((System.Timers.Timer)sender).Stop(); // Stop the timer
+            }
+        }
+        private void LEDColorChange (object sender, ElapsedEventArgs e)
+        {
+            RadioButton color = (sender as RadioButton);
+            if(color.Content = Green_LED.Content)
+            {
+                byte led=0;
+                dataToSend = new byte[] { 0x20, led };
+                sendCommand(dataToSend)
+
+            }
+            if(color.Content = Red_LED.Content)
+            {
+                byte led=1;
+                dataToSend = new byte[] { 0x20, led };
+                sendCommand(dataToSend)
+            }
+        }
+        void sendCommand(byte[] dataToSend)
+        {
+            try
+            {
+                serialPort.Write(dataToSend, 0, dataToSend.Length);
+                Thread,Sleep(250)
+            }
+                catch (Exception e)
+            {
+               Console.WriteLine(e.Message);
+            }
+        }
+        private void RTIAChange (object sender, ElapsedEventArgs e)
+        {
+            ComboBox RTIABox = sender as ComboBox;
+            int RTIA = int.Parse(RTIA.SelectedItem)
+            for (int i = 0; i < 5; i++)
+            {
+                sendCommand(new byte[] {(byte)(i+8), (byte)RTIA});
+            }
+        }
+        private void RINTChange (object sender, ElapsedEventArgs e)
+        {
+            ComboBox RINTBox = sender as ComboBox;
+            int RINT = int.Parse(RTIA.SelectedItem)
+            for (int i = 0; i < 5; i++)
+            {
+                sendCommand(new byte[] {(byte)(i+11), (byte)RINT});
             }
         }
 

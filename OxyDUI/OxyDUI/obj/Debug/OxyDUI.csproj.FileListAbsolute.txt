@@ -1,0 +1,10 @@
+C:\Users\ronbe\source\repos\OxyDUI\OxyDUI\bin\Debug\OxyDUI.exe.config
+C:\Users\ronbe\source\repos\OxyDUI\OxyDUI\bin\Debug\OxyDUI.exe
+C:\Users\ronbe\source\repos\OxyDUI\OxyDUI\bin\Debug\OxyDUI.pdb
+C:\Users\ronbe\source\repos\OxyDUI\OxyDUI\obj\Debug\OxyDUI.csproj.AssemblyReference.cache
+C:\Users\ronbe\source\repos\OxyDUI\OxyDUI\obj\Debug\OxyDUI.Form1.resources
+C:\Users\ronbe\source\repos\OxyDUI\OxyDUI\obj\Debug\OxyDUI.Properties.Resources.resources
+C:\Users\ronbe\source\repos\OxyDUI\OxyDUI\obj\Debug\OxyDUI.csproj.GenerateResource.cache
+C:\Users\ronbe\source\repos\OxyDUI\OxyDUI\obj\Debug\OxyDUI.csproj.CoreCompileInputs.cache
+C:\Users\ronbe\source\repos\OxyDUI\OxyDUI\obj\Debug\OxyDUI.exe
+C:\Users\ronbe\source\repos\OxyDUI\OxyDUI\obj\Debug\OxyDUI.pdb

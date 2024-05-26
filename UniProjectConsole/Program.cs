@@ -105,27 +105,17 @@ namespace UARTConnection
                         Console.WriteLine("Enter LED Color Number: (0 - Green , 1 - Red)");
                         led = byte.Parse(Console.ReadLine());
                         dataToSend = new byte[] { 0x20, led };
-                        try
-                        {
-                            serialPort.Write(dataToSend, 0, dataToSend.Length);
-                            Console.WriteLine("LED Changed");
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e.Message);
-                        }
+                        sendCommand(dataToSend);
                         break;
                     #endregion
                     #region Current Change 
                     case 7: //TEST
-                        Console.WriteLine("Pick a value between 0 and 200: YTESTY");
+                        Console.WriteLine("Pick a value between 0 and 200:");
                         int value = int.Parse(Console.ReadLine());
                         int calcValue = (int)(Math.Round((value * 126) / 198.5));
                         //byte hexValue = Convert.ToByte(calcValue.ToString("X"),16);
                         for (int i = 0; i < 5; i++)
-                        {
-                            Console.WriteLine("the values being sent to the device are");
-                            Console.WriteLine("{0} :  {1}",i, calcValue);
+                        {                            
                             sendCommand(new byte[] {(byte)(i), (byte)calcValue});
                         }
                         serialPort.DiscardInBuffer();
@@ -183,7 +173,9 @@ namespace UARTConnection
             {                
                 try
                 {
-                    int bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                    //int bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                    int[] rawData = read(serialPort);
+                    //Thread.Sleep(20);
                     foreach (byte b in buffer)
                     {
                         Console.WriteLine(b);
@@ -199,8 +191,10 @@ namespace UARTConnection
             int[] read(SerialPort serialPort)
             {
                 try
-                {
-                    int bytesRead = serialPort.Read(buffer, 0, bytesToRead);                    
+                {                 
+                    serialPort.ReadExisting(); //Read(Clear) old data in buffer
+                    Thread.Sleep(10); //Fill up buffer
+                    int bytesRead = serialPort.Read(buffer, 0, bytesToRead);
                 }
                 catch (Exception e)
                 {
@@ -232,6 +226,7 @@ namespace UARTConnection
                 try
                 {
                     serialPort.Write(dataToSend, 0, dataToSend.Length);
+                    Thread.Sleep(250);
                     Console.WriteLine("Operation Successful");
                 }
                 catch (Exception e)

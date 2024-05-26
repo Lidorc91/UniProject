@@ -72,36 +72,6 @@
                                 <TranslateTransform/>
                             </TransformGroup>
                         </UIElement.RenderTransform>
-                        <Label x:Name="Sensor_version2" Content="Sensor_version" HorizontalAlignment="Left" Margin="10,75,0,0" VerticalAlignment="Top" Height="24" Grid.ColumnSpan="2" Width="84"/>
-                        <Label x:Name="Recording_time1" Content="Recording Time[s]" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" Height="24" Grid.ColumnSpan="2" Width="105"/>
-                        <Label x:Name="Current1" Content="Current[mA]" HorizontalAlignment="Left" Margin="10,25,0,0" VerticalAlignment="Top" Height="24" Grid.ColumnSpan="2" Width="75"/>
-                        <TextBox x:Name="Current_inputbox1" HorizontalAlignment="Left" Margin="85,25,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox" Grid.Column="1"/>
-                        <TextBox x:Name="Recording_time_inputbox1" HorizontalAlignment="Left" Margin="85,50,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox" Grid.Column="1"/>
-                        <ComboBox x:Name="Sensor_version3" HorizontalAlignment="Left" Margin="85,75,0,0" VerticalAlignment="Top" Width="80" Height="24" Grid.Column="1"/>
-                        <GroupBox x:Name="LED_group1" Header="LED Color" Background="#FFF3EBEB" Margin="90,116,137,158" Grid.Column="1">
-                            <Grid x:Name="led_goup_grid1" Background="#FFF3EBEB">
-                                <RadioButton x:Name="Green_LED1" Content="Green" HorizontalAlignment="Left" Margin="4,23,0,0" VerticalAlignment="Top" GroupName="lights"/>
-                                <RadioButton x:Name="Red_LED1" Content="Red" HorizontalAlignment="Left" Margin="4,0,0,0" VerticalAlignment="Top" GroupName="lights" IsChecked="True"/>
-                            </Grid>
-                        </GroupBox>
-                        <Button x:Name="Play_button1" Content="Play" HorizontalAlignment="Left" Margin="26,124,0,0" VerticalAlignment="Top" Width="86" Height="20" Grid.ColumnSpan="2"/>
-                        <Button x:Name="Test_button1" Content="Test" HorizontalAlignment="Left" Margin="26,151,0,0" VerticalAlignment="Top" Width="86" Height="20" Grid.ColumnSpan="2"/>
-                        <Button x:Name="Record_button1" Content="Record" HorizontalAlignment="Left" Margin="26,176,0,0" VerticalAlignment="Top" Height="20" Width="86" Grid.ColumnSpan="2"/>
-                        <Button x:Name="RecordStop_button_Copy1" Content="Stop Recording" HorizontalAlignment="Left" Margin="26,201,0,0" VerticalAlignment="Top" Width="86" Height="20" Grid.ColumnSpan="2"/>
-                        <ComboBox x:Name="RTIA_box1" HorizontalAlignment="Left" Margin="10,250,0,0" VerticalAlignment="Top" Width="120" SelectedIndex="4" Grid.ColumnSpan="2" Height="22">
-                            <ComboBoxItem Content="200"/>
-                            <ComboBoxItem Content="100"/>
-                            <ComboBoxItem Content="50"/>
-                            <ComboBoxItem Content="25"/>
-                            <ComboBoxItem Content="12.5"/>
-                        </ComboBox>
-                        <ComboBox x:Name="RINT_box1" HorizontalAlignment="Left" Margin="10,300,0,0" VerticalAlignment="Top" Width="120" SelectedIndex="2" Grid.ColumnSpan="2" Height="22">
-                            <ComboBoxItem Content="400"/>
-                            <ComboBoxItem Content="200"/>
-                            <ComboBoxItem Content="100"/>
-                        </ComboBox>
-                        <Label x:Name="RTIA_labal1" Content="RTIA[Kohm]" HorizontalAlignment="Left" Margin="10,225,0,0" VerticalAlignment="Top" Height="24" Grid.ColumnSpan="2" Width="72"/>
-                        <Label x:Name="RINT_labal1" Content="RINT[Kohm]" HorizontalAlignment="Left" Margin="10,275,0,0" VerticalAlignment="Top" Height="24" Grid.ColumnSpan="2" Width="74"/>
                         <ScottPlot:WpfPlot x:Name="DevGraph" Grid.ColumnSpan="2" Margin="0,0,137,-39" />
                     </Grid>
 

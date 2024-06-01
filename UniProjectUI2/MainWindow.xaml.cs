@@ -15,6 +15,8 @@ using System.Windows.Shapes;
 using System.Timers;
 using ScottPlot.AxisPanels;
 using ScottPlot;
+using System.IO.Ports;
+using System.Runtime.CompilerServices;
 
 namespace UniProjectUI2
 {
@@ -27,9 +29,14 @@ namespace UniProjectUI2
         readonly ScottPlot.Plottables.DataLogger Logger1;
         readonly ScottPlot.Plottables.DataLogger Logger2;
         System.Timers.Timer timer = new System.Timers.Timer(500);
-        private double[] times; 
+        private double[] times;
+        byte[] dataToSend;
         private double[] values1;
         private double[] values2;
+        #region SerialPort Definition
+        SerialPort serialPort = new SerialPort();
+            
+        #endregion
         public MainWindow()
         {
             InitializeComponent();
@@ -86,7 +93,7 @@ namespace UniProjectUI2
             if(Play_button.Content == "Stop")
             {
                 timer.Enabled = false;
-                Play_button.Content = "Play"
+                Play_button.Content = "Play";
             }
         }
         private DateTime startTime;
@@ -107,21 +114,21 @@ namespace UniProjectUI2
                 ((System.Timers.Timer)sender).Stop(); // Stop the timer
             }
         }
-        private void LEDColorChange (object sender, ElapsedEventArgs e)
+        private void LEDColorChange(object sender, RoutedEventArgs e)
         {
             RadioButton color = (sender as RadioButton);
-            if(color.Content = Green_LED.Content)
+            if(color.Content == Green_LED.Content)
             {
                 byte led=0;
                 dataToSend = new byte[] { 0x20, led };
-                sendCommand(dataToSend)
+                sendCommand(dataToSend);
 
             }
-            if(color.Content = Red_LED.Content)
+            if(color.Content == Red_LED.Content)
             {
                 byte led=1;
                 dataToSend = new byte[] { 0x20, led };
-                sendCommand(dataToSend)
+                sendCommand(dataToSend);
             }
         }
         void sendCommand(byte[] dataToSend)
@@ -129,32 +136,55 @@ namespace UniProjectUI2
             try
             {
                 serialPort.Write(dataToSend, 0, dataToSend.Length);
-                Thread,Sleep(250)
+                Thread.Sleep(250);
             }
                 catch (Exception e)
             {
                Console.WriteLine(e.Message);
             }
         }
-        private void RTIAChange (object sender, ElapsedEventArgs e)
+        private void RTIAChange(object sender, SelectionChangedEventArgs e)
         {
             ComboBox RTIABox = sender as ComboBox;
-            int RTIA = int.Parse(RTIA.SelectedItem)
+            int RTIA = int.Parse(RTIABox.SelectedItem.ToString());
             for (int i = 0; i < 5; i++)
             {
                 sendCommand(new byte[] {(byte)(i+8), (byte)RTIA});
             }
         }
-        private void RINTChange (object sender, ElapsedEventArgs e)
+        private void RINTChange(object sender, SelectionChangedEventArgs e)
         {
             ComboBox RINTBox = sender as ComboBox;
-            int RINT = int.Parse(RTIA.SelectedItem)
-            for (int i = 0; i < 5; i++)
+            int RINT = int.Parse(RINTBox.SelectedItem.ToString());
+            for (int i = 0; i < 11; i++)
             {
                 sendCommand(new byte[] {(byte)(i+11), (byte)RINT});
             }
         }
+        private void ChangeCurrent(object sender, TextChangedEventArgs e)
+        {
 
+        }
+
+        private void RecordTimeChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
+
+        private void StartTest(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StartRecord(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StopRecording(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
 }

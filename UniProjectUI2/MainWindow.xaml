@@ -25,21 +25,19 @@
                     <Label x:Name="HR_number" Content="0" HorizontalAlignment="Left" Margin="90,100,0,0" VerticalAlignment="Top"/>
                     <Label x:Name="BP_number" Content="0" HorizontalAlignment="Left" Margin="90,200,0,0" VerticalAlignment="Top"/>
                     <Image x:Name="BIU_Logo" HorizontalAlignment="Left" Height="93" VerticalAlignment="Top" Width="235" Stretch="Fill" Source="/biulogo.png"/>
-                    <Grid Background="#FFE5E5E5" Margin="232,25,0,73">
-                        <ScottPlot:WpfPlot x:Name="PPGGraph"  Margin="0,0,137,-39" />
-                    </Grid>
+                    <ScottPlot:WpfPlot x:Name="DashGraph" Margin="127,103,10,7" />
                 </Grid>
             </TabItem>
-            <TabItem x:Name="Dev_tab" Header="Developer" HorizontalContentAlignment="Stretch">
+            <TabItem x:Name="Dev_tab" Header="Developer" HorizontalContentAlignment="Stretch" Height="20" VerticalAlignment="Top">
                 <Grid Background="#FFE5E5E5" Height="464" Margin="0,0,-140,0">
                     <Label x:Name="Sensor_version" Content="Sensor Version" HorizontalAlignment="Left" Margin="10,75,0,0" VerticalAlignment="Top" Height="24"/>
                     <Label x:Name="Recording_time" Content="Recording Time[s]" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" Height="24"/>
                     <Label x:Name="Current" Content="Current[mA]" HorizontalAlignment="Left" Margin="10,25,0,0" VerticalAlignment="Top" Height="24"/>
-                    <TextBox x:Name="Current_inputbox" HorizontalAlignment="Left" Margin="120,25,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox"/>
-                    <TextBox x:Name="Recording_time_inputbox" HorizontalAlignment="Left" Margin="120,50,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox"/>
-                    <ComboBox x:Name="Sensor_version1" HorizontalAlignment="Left" Margin="120,75,0,0" VerticalAlignment="Top" Width="80" Height="24" SelectedIndex="0"/>
-                        <ComboBoxItem Content= "V0">
-                        <ComboBoxItem Content= "V1">
+                    <TextBox x:Name="Current_inputbox" HorizontalAlignment="Left" Margin="120,25,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox" TextChanged="ChangeCurrent"/>
+                    <TextBox x:Name="Recording_time_inputbox" HorizontalAlignment="Left" Margin="120,50,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox" TextChanged="RecordTimeChanged"/>
+                    <ComboBox x:Name="Sensor_version1" HorizontalAlignment="Left" Margin="120,75,0,0" VerticalAlignment="Top" Width="80" Height="24" SelectedIndex="0">
+                        <ComboBoxItem Content="0"/>
+                        <ComboBoxItem Content="1"/>
                     </ComboBox>
                     <GroupBox x:Name="LED_group" Header="LED Color" Background="#FFF3EBEB" Margin="125,116,607,252">
                         <Grid x:Name="led_goup_grid" Background="#FFF3EBEB">
@@ -48,9 +46,9 @@
                         </Grid>
                     </GroupBox>
                     <Button x:Name="Play_button" Content="Play" HorizontalAlignment="Left" Margin="26,124,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="PlayButton_Click"/>
-                    <Button x:Name="Test_button" Content="Test" HorizontalAlignment="Left" Margin="26,151,0,0" VerticalAlignment="Top" Width="86" Height="20"/>
-                    <Button x:Name="Record_button" Content="Record" HorizontalAlignment="Left" Margin="26,176,0,0" VerticalAlignment="Top" Height="20" Width="86"/>
-                    <Button x:Name="RecordStop_button_Copy" Content="Stop Recording" HorizontalAlignment="Left" Margin="26,201,0,0" VerticalAlignment="Top" Width="86" Height="20"/>
+                    <Button x:Name="Test_button" Content="Test" HorizontalAlignment="Left" Margin="26,151,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="StartTest"/>
+                    <Button x:Name="Record_button" Content="Record" HorizontalAlignment="Left" Margin="26,176,0,0" VerticalAlignment="Top" Height="20" Width="86" Click="StartRecord"/>
+                    <Button x:Name="RecordStop_button_Copy" Content="Stop Recording" HorizontalAlignment="Left" Margin="26,201,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="StopRecording"/>
                     <ComboBox x:Name="RTIA_box" HorizontalAlignment="Left" Margin="10,250,0,0" VerticalAlignment="Top" Width="120" SelectedIndex="4" SelectionChanged="RTIAChange">
                         <ComboBoxItem Content="200"/>
                         <ComboBoxItem Content="100"/>
@@ -58,7 +56,7 @@
                         <ComboBoxItem Content="25"/>
                         <ComboBoxItem Content="12.5"/>
                     </ComboBox>
-                    <ComboBox x:Name="RINT_box" HorizontalAlignment="Left" Margin="10,300,0,0" VerticalAlignment="Top" Width="120" SelectedIndex="2"SelectionChanged="RINTChange">
+                    <ComboBox x:Name="RINT_box" HorizontalAlignment="Left" Margin="10,300,0,0" VerticalAlignment="Top" Width="120" SelectedIndex="2" SelectionChanged="RINTChange">
                         <ComboBoxItem Content="400"/>
                         <ComboBoxItem Content="200"/>
                         <ComboBoxItem Content="100"/>

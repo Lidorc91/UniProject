@@ -40,16 +40,16 @@ namespace UniProjectUI2
             private double[] values1;
             private double[] values2;
             private DateTime startTime;
-            privite static int rawData;
+            private static int rawData;
         #endregion
         #region SerialPort Definition
-            privite static SerialPort serialPort = new SerialPort();
+            private SerialPort serialPort = new SerialPort();
             serialPort.PortName = "COM3";
             serialPort.BaudRate = 115200;
             serialPort.DataBits = 8;
             serialPort.Parity = Parity.None;
             serialPort.StopBits = StopBits.One;
-            serialPort.Handshake = Handshake.None;
+            serialPort.Handshake = Handshake.None
         #endregion
         public MainWindow()
         {

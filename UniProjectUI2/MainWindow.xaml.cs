@@ -26,29 +26,43 @@ namespace UniProjectUI2
     /// </summary>
     public partial class MainWindow : Window
     {
-        readonly ScottPlot.Plottables.DataLogger Logger1;
-        readonly ScottPlot.Plottables.DataLogger Logger2;
-        System.Timers.Timer timer = new System.Timers.Timer(500);
-        private double[] times;
-        byte[] dataToSend;
-        private double[] values1;
-        private double[] values2;
+        
+        #region Variable Declarations
+            int packetNum = 1;
+            int bytesToRead = 22 * packetNum;
+            byte[] buffer = new byte[bytesToRead];
+            byte[] dataToSend;
+            readonly ScottPlot.Plottables.DataLogger Logger1;
+            readonly ScottPlot.Plottables.DataLogger Logger2;
+            System.Timers.Timer timer = new System.Timers.Timer(100);
+            private double[] times;
+            byte[] dataToSend;
+            private double[] values1;
+            private double[] values2;
+            private DateTime startTime;
+            privite static int rawData;
+        #endregion
         #region SerialPort Definition
-        SerialPort serialPort = new SerialPort();
-            
+            privite static SerialPort serialPort = new SerialPort();
+            serialPort.PortName = "COM3";
+            serialPort.BaudRate = 115200;
+            serialPort.DataBits = 8;
+            serialPort.Parity = Parity.None;
+            serialPort.StopBits = StopBits.One;
+            serialPort.Handshake = Handshake.None;
         #endregion
         public MainWindow()
         {
             InitializeComponent();
             InitializePlot();
 
+            InitializeSerialPort();
+
             // create two loggers and add them to the plot
             Logger1 = DevGraph.Plot.Add.DataLogger();
             Logger2 = DevGraph.Plot.Add.DataLogger();
             //adding the axies
             RightAxis axis1 = (RightAxis)DevGraph.Plot.Axes.Right;
-
-
         }
         private void CurrentValidationTextBox(object sender, TextCompositionEventArgs e) //this method validates inputs into the current box
         {
@@ -80,7 +94,9 @@ namespace UniProjectUI2
         {
             if(Play_button.Content == "Play")
             {
-            timer.Elapsed += GenerateRandomNumbers;
+            
+            startTransmit();
+            timer.Elapsed += ReadData();
             timer.AutoReset = true; // Continuously fire the Elapsed event
             timer.Enabled = true; // Start the timer
 
@@ -96,7 +112,27 @@ namespace UniProjectUI2
                 Play_button.Content = "Play";
             }
         }
-        private DateTime startTime;
+        private void ReadData(object sender, ElapsedEventArgs e)
+        {
+            
+        }
+        private void InitializeSerialPort()
+        {
+             try
+             {
+               serialPort.Open();
+               if (s.IsOpen)
+             {
+                 Console.WriteLine("Connected");
+             }
+              }
+             catch (Exception e) { Console.WriteLine(e.Message); }
+        }
+        void startTransmit()
+            {                
+                byte[] dataToSend = new byte[] { 0x10, 1 };
+                sendCommand(dataToSend);                
+            }
         private void GenerateRandomNumbers(object sender, ElapsedEventArgs e)
         {
             Random rnd = new Random();
@@ -185,6 +221,9 @@ namespace UniProjectUI2
         {
 
         }
+
+
+
     }
 
 }

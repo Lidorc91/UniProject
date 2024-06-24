@@ -1,4 +1,4 @@
-﻿using ScottPlot.Colormaps;
+using ScottPlot.Colormaps;
 using ScottPlot.Plottables;
 using ScottPlot.WPF;
 using System.Text;
@@ -40,22 +40,15 @@ namespace UniProjectUI2
             private double[] values1;
             private double[] values2;
             private DateTime startTime;
-            private static int rawData;
+            private static int data;
         #endregion
         #region SerialPort Definition
-            private SerialPort serialPort = new SerialPort();
-            serialPort.PortName = "COM3";
-            serialPort.BaudRate = 115200;
-            serialPort.DataBits = 8;
-            serialPort.Parity = Parity.None;
-            serialPort.StopBits = StopBits.One;
-            serialPort.Handshake = Handshake.None
+            private static SerialPort serialPort;
         #endregion
         public MainWindow()
         {
             InitializeComponent();
             InitializePlot();
-
             InitializeSerialPort();
 
             // create two loggers and add them to the plot
@@ -114,10 +107,27 @@ namespace UniProjectUI2
         }
         private void ReadData(object sender, ElapsedEventArgs e)
         {
-            
+                try
+                {                 
+                    serialPort.ReadExisting(); //Read(Clear) old data in buffer
+                    Thread.Sleep(10); //Fill up buffer
+                    int bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+                int[] data = decode(buffer);
         }
         private void InitializeSerialPort()
         {
+            serialPort = new SerialPort();
+            serialPort.PortName = "COM3";
+            serialPort.BaudRate = 115200;
+            serialPort.DataBits = 8;
+            serialPort.Parity = Parity.None;
+            serialPort.StopBits = StopBits.One;
+            serialPort.Handshake = Handshake.None;
              try
              {
                serialPort.Open();
@@ -199,7 +209,7 @@ namespace UniProjectUI2
         }
         private void ChangeCurrent(object sender, TextChangedEventArgs e)
         {
-
+            
         }
 
         private void RecordTimeChanged(object sender, TextChangedEventArgs e)
@@ -221,6 +231,36 @@ namespace UniProjectUI2
         {
 
         }
+        int[] decode(byte[] b) //TEST
+        {
+                int[] arr = new int[5*packetNum]; // here is the decoded array
+                string[] hexString = new string[b.Length];
+                for(int i = 1; i< arr.Length*4;i+=4) //run 5 times for the 5 PDs
+                {             
+                    string a1 = b[i].ToString("X").PadLeft(2,'0'); //this is the first number
+                    string a2 = b[i+1].ToString("X").PadLeft(2,'0'); //this is the 2nd number
+                    //numbers 3 & 4 are always 0 so they are ignored
+                    StringBuilder concatenatedHex = new StringBuilder(); 
+                    concatenatedHex.Append(a2);
+                    concatenatedHex.Append(a1); //this mean thats the 2nd number is the first element of the decoded number
+                    arr[(i-1) / 4] = Convert.ToInt32(concatenatedHex.ToString(),16); //convert back to dec
+                }
+
+                //PD Switch
+                arr[2] += arr[3];
+                arr[3] = arr[2] - arr[3];
+                arr[2] -= arr[3];
+
+                arr[3] += arr[4];
+                arr[4] = arr[3] - arr[4];
+                arr[3] -= arr[4];
+
+                /*foreach (int a in arr)
+                {
+                    Console.WriteLine(a); //posts the decoded array one by one
+                }*/
+                return arr;
+            }        
 
 
 

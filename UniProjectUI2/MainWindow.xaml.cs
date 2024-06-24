@@ -15,6 +15,8 @@ using System.Windows.Shapes;
 using System.Timers;
 using ScottPlot.AxisPanels;
 using ScottPlot;
+using System.IO.Ports;
+using System.Runtime.CompilerServices;
 
 namespace UniProjectUI2
 {
@@ -24,24 +26,43 @@ namespace UniProjectUI2
     /// </summary>
     public partial class MainWindow : Window
     {
-        readonly ScottPlot.Plottables.DataLogger Logger1;
-        readonly ScottPlot.Plottables.DataLogger Logger2;
-        System.Timers.Timer timer = new System.Timers.Timer(500);
-        private double[] times; 
-        private double[] values1;
-        private double[] values2;
+        
+        #region Variable Declarations
+            int packetNum = 1;
+            int bytesToRead = 22 * packetNum;
+            byte[] buffer = new byte[bytesToRead];
+            byte[] dataToSend;
+            readonly ScottPlot.Plottables.DataLogger Logger1;
+            readonly ScottPlot.Plottables.DataLogger Logger2;
+            System.Timers.Timer timer = new System.Timers.Timer(100);
+            private double[] times;
+            byte[] dataToSend;
+            private double[] values1;
+            private double[] values2;
+            private DateTime startTime;
+            privite static int rawData;
+        #endregion
+        #region SerialPort Definition
+            privite static SerialPort serialPort = new SerialPort();
+            serialPort.PortName = "COM3";
+            serialPort.BaudRate = 115200;
+            serialPort.DataBits = 8;
+            serialPort.Parity = Parity.None;
+            serialPort.StopBits = StopBits.One;
+            serialPort.Handshake = Handshake.None;
+        #endregion
         public MainWindow()
         {
             InitializeComponent();
             InitializePlot();
+
+            InitializeSerialPort();
 
             // create two loggers and add them to the plot
             Logger1 = DevGraph.Plot.Add.DataLogger();
             Logger2 = DevGraph.Plot.Add.DataLogger();
             //adding the axies
             RightAxis axis1 = (RightAxis)DevGraph.Plot.Axes.Right;
-
-
         }
         private void CurrentValidationTextBox(object sender, TextCompositionEventArgs e) //this method validates inputs into the current box
         {
@@ -73,7 +94,9 @@ namespace UniProjectUI2
         {
             if(Play_button.Content == "Play")
             {
-            timer.Elapsed += GenerateRandomNumbers;
+            
+            startTransmit();
+            timer.Elapsed += ReadData();
             timer.AutoReset = true; // Continuously fire the Elapsed event
             timer.Enabled = true; // Start the timer
 
@@ -86,10 +109,30 @@ namespace UniProjectUI2
             if(Play_button.Content == "Stop")
             {
                 timer.Enabled = false;
-                Play_button.Content = "Play"
+                Play_button.Content = "Play";
             }
         }
-        private DateTime startTime;
+        private void ReadData(object sender, ElapsedEventArgs e)
+        {
+            
+        }
+        private void InitializeSerialPort()
+        {
+             try
+             {
+               serialPort.Open();
+               if (s.IsOpen)
+             {
+                 Console.WriteLine("Connected");
+             }
+              }
+             catch (Exception e) { Console.WriteLine(e.Message); }
+        }
+        void startTransmit()
+            {                
+                byte[] dataToSend = new byte[] { 0x10, 1 };
+                sendCommand(dataToSend);                
+            }
         private void GenerateRandomNumbers(object sender, ElapsedEventArgs e)
         {
             Random rnd = new Random();
@@ -107,21 +150,21 @@ namespace UniProjectUI2
                 ((System.Timers.Timer)sender).Stop(); // Stop the timer
             }
         }
-        private void LEDColorChange (object sender, ElapsedEventArgs e)
+        private void LEDColorChange(object sender, RoutedEventArgs e)
         {
             RadioButton color = (sender as RadioButton);
-            if(color.Content = Green_LED.Content)
+            if(color.Content == Green_LED.Content)
             {
                 byte led=0;
                 dataToSend = new byte[] { 0x20, led };
-                sendCommand(dataToSend)
+                sendCommand(dataToSend);
 
             }
-            if(color.Content = Red_LED.Content)
+            if(color.Content == Red_LED.Content)
             {
                 byte led=1;
                 dataToSend = new byte[] { 0x20, led };
-                sendCommand(dataToSend)
+                sendCommand(dataToSend);
             }
         }
         void sendCommand(byte[] dataToSend)
@@ -129,31 +172,57 @@ namespace UniProjectUI2
             try
             {
                 serialPort.Write(dataToSend, 0, dataToSend.Length);
-                Thread,Sleep(250)
+                Thread.Sleep(250);
             }
                 catch (Exception e)
             {
                Console.WriteLine(e.Message);
             }
         }
-        private void RTIAChange (object sender, ElapsedEventArgs e)
+        private void RTIAChange(object sender, SelectionChangedEventArgs e)
         {
             ComboBox RTIABox = sender as ComboBox;
-            int RTIA = int.Parse(RTIA.SelectedItem)
+            int RTIA = int.Parse(RTIABox.SelectedItem.ToString());
             for (int i = 0; i < 5; i++)
             {
                 sendCommand(new byte[] {(byte)(i+8), (byte)RTIA});
             }
         }
-        private void RINTChange (object sender, ElapsedEventArgs e)
+        private void RINTChange(object sender, SelectionChangedEventArgs e)
         {
             ComboBox RINTBox = sender as ComboBox;
-            int RINT = int.Parse(RTIA.SelectedItem)
-            for (int i = 0; i < 5; i++)
+            int RINT = int.Parse(RINTBox.SelectedItem.ToString());
+            for (int i = 0; i < 11; i++)
             {
                 sendCommand(new byte[] {(byte)(i+11), (byte)RINT});
             }
         }
+        private void ChangeCurrent(object sender, TextChangedEventArgs e)
+        {
+
+        }
+
+        private void RecordTimeChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
+
+        private void StartTest(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StartRecord(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StopRecording(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+
 
     }
 

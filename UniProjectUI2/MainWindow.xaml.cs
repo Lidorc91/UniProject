@@ -30,8 +30,6 @@ namespace UniProjectUI2
         private double[] times; 
         private double[] values1;
         private double[] values2;
-        byte[] dataToSend;
-        int serialPort; //CHANGE THIS LATER 
         public MainWindow()
         {
             InitializeComponent();
@@ -88,7 +86,7 @@ namespace UniProjectUI2
             if(Play_button.Content == "Stop")
             {
                 timer.Enabled = false;
-                Play_button.Content = "Play";
+                Play_button.Content = "Play"
             }
         }
         private DateTime startTime;
@@ -112,26 +110,26 @@ namespace UniProjectUI2
         private void LEDColorChange (object sender, ElapsedEventArgs e)
         {
             RadioButton color = (sender as RadioButton);
-            if(color.Content == Green_LED.Content)
+            if(color.Content = Green_LED.Content)
             {
                 byte led=0;
                 dataToSend = new byte[] { 0x20, led };
-                sendCommand(dataToSend);
+                sendCommand(dataToSend)
 
             }
-            if(color.Content == Red_LED.Content)
+            if(color.Content = Red_LED.Content)
             {
                 byte led=1;
                 dataToSend = new byte[] { 0x20, led };
-                sendCommand(dataToSend);
+                sendCommand(dataToSend)
             }
         }
         void sendCommand(byte[] dataToSend)
         {
             try
             {
-               //serialPort.Write(dataToSend, 0, dataToSend.Length);
-                Thread.Sleep(250);
+                serialPort.Write(dataToSend, 0, dataToSend.Length);
+                Thread,Sleep(250)
             }
                 catch (Exception e)
             {
@@ -140,9 +138,8 @@ namespace UniProjectUI2
         }
         private void RTIAChange (object sender, ElapsedEventArgs e)
         {
-            int RTIA=0;
             ComboBox RTIABox = sender as ComboBox;
-           // int RTIA = int.Parse(RTIA.SelectedItem);
+            int RTIA = int.Parse(RTIA.SelectedItem)
             for (int i = 0; i < 5; i++)
             {
                 sendCommand(new byte[] {(byte)(i+8), (byte)RTIA});
@@ -150,12 +147,11 @@ namespace UniProjectUI2
         }
         private void RINTChange (object sender, ElapsedEventArgs e)
         {
-            int RINT =0;
             ComboBox RINTBox = sender as ComboBox;
-           // int RINT = int.Parse(RTIA.SelectedItem);
+            int RINT = int.Parse(RTIA.SelectedItem)
             for (int i = 0; i < 5; i++)
             {
-                sendCommand(new byte[] {(byte)(i+11), (byte) RINT});
+                sendCommand(new byte[] {(byte)(i+11), (byte)RINT});
             }
         }
 

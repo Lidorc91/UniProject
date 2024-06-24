@@ -34,16 +34,18 @@ namespace UniProjectUI2
             byte[] dataToSend;
             readonly ScottPlot.Plottables.DataLogger Logger1;
             readonly ScottPlot.Plottables.DataLogger Logger2;
+            readonly ScottPlot.Plottables.DataLogger Logger3;
+            readonly ScottPlot.Plottables.DataLogger Logger4;
+            readonly ScottPlot.Plottables.DataLogger Logger5;
             System.Timers.Timer timer = new System.Timers.Timer(100);
             private double[] times;
-            byte[] dataToSend;
             private double[] values1;
             private double[] values2;
             private DateTime startTime;
             private static int data;
         #endregion
         #region SerialPort Definition
-            private static SerialPort serialPort;
+            private static SerialPort serialPort = new SerialPort();
         #endregion
         public MainWindow()
         {
@@ -77,10 +79,13 @@ namespace UniProjectUI2
             DevGraph.Plot.YLabel("Intensity [a.u]");
 
         }
-        private void UpdatePlotWithNewData(double time, double value1, double value2)
+        private void UpdatePlotWithNewData(double time, int[] data)
         {
-            Logger1.Add(value1);
-            Logger2.Add(value2);
+            Logger1.Add(data[0]);
+            Logger2.Add(data[1]);
+            Logger3.Add(data[2]);
+            Logger4.Add(data[3]);
+            Logger5.Add(data[4]);
             DevGraph.Refresh(); 
         }
         private void PlayButton_Click(object sender, RoutedEventArgs e)
@@ -101,6 +106,7 @@ namespace UniProjectUI2
             }
             if(Play_button.Content == "Stop")
             {
+                stopTransmit()
                 timer.Enabled = false;
                 Play_button.Content = "Play";
             }
@@ -118,6 +124,10 @@ namespace UniProjectUI2
                     Console.WriteLine(e.Message);
                 }
                 int[] data = decode(buffer);
+            // Calculate elapsed time
+            TimeSpan elapsedTime = e.SignalTime - startTime;
+            //update Graph
+            UpdatePlotWithNewData(elapsedTime.TotalSeconds,data);
         }
         private void InitializeSerialPort()
         {
@@ -209,12 +219,19 @@ namespace UniProjectUI2
         }
         private void ChangeCurrent(object sender, TextChangedEventArgs e)
         {
-            
+                
+                int value = Current_inputbox.Text;
+                int calcValue = (int)(Math.Round((value * 126) / 198.5));
+                for (int i = 0; i < 5; i++)
+                {
+                    sendCommand(new byte[] { (byte)(i), (byte)calcValue });
+                }
+                serialPort.DiscardInBuffer();
         }
 
         private void RecordTimeChanged(object sender, TextChangedEventArgs e)
         {
-
+            retrun  //not sure this method is needed
         }
 
         private void StartTest(object sender, RoutedEventArgs e)
@@ -260,9 +277,12 @@ namespace UniProjectUI2
                     Console.WriteLine(a); //posts the decoded array one by one
                 }*/
                 return arr;
+        }
+        void stopTransmit()
+            {
+                byte[] dataToSend = new byte[] { 0x10, 0 };
+                sendCommand(dataToSend);
             }        
-
-
 
     }
 

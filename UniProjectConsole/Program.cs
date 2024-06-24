@@ -203,6 +203,7 @@ namespace UARTConnection
                 int[] data = decode(buffer);
                 return data;
             }
+
             int[,] Record()
             {
                 int recTime = 0;

@@ -26,7 +26,6 @@ namespace UniProjectUI2
     /// </summary>
     public partial class MainWindow : Window
     {
-        
         #region Variable Declarations
             int packetNum = 1;
             int bytesToRead = 22 * packetNum;
@@ -36,14 +35,13 @@ namespace UniProjectUI2
             readonly ScottPlot.Plottables.DataLogger Logger2;
             System.Timers.Timer timer = new System.Timers.Timer(100);
             private double[] times;
-            byte[] dataToSend;
             private double[] values1;
             private double[] values2;
             private DateTime startTime;
             private static int data;
         #endregion
         #region SerialPort Definition
-            private static SerialPort serialPort;
+            private SerialPort serialPort;
         #endregion
         public MainWindow()
         {

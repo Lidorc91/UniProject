@@ -15,8 +15,6 @@ using System.Windows.Shapes;
 using System.Timers;
 using ScottPlot.AxisPanels;
 using ScottPlot;
-using System.IO.Ports;
-using System.Runtime.CompilerServices;
 
 namespace UniProjectUI2
 {
@@ -26,7 +24,6 @@ namespace UniProjectUI2
     /// </summary>
     public partial class MainWindow : Window
     {
-<<<<<<< HEAD
         readonly ScottPlot.Plottables.DataLogger Logger1;
         readonly ScottPlot.Plottables.DataLogger Logger2;
         System.Timers.Timer timer = new System.Timers.Timer(500);
@@ -35,45 +32,18 @@ namespace UniProjectUI2
         private double[] values2;
         byte[] dataToSend;
         int serialPort; //CHANGE THIS LATER 
-=======
-        
-        #region Variable Declarations
-            int packetNum = 1;
-            int bytesToRead = 22 * packetNum;
-            byte[] buffer = new byte[bytesToRead];
-            byte[] dataToSend;
-            readonly ScottPlot.Plottables.DataLogger Logger1;
-            readonly ScottPlot.Plottables.DataLogger Logger2;
-            System.Timers.Timer timer = new System.Timers.Timer(100);
-            private double[] times;
-            byte[] dataToSend;
-            private double[] values1;
-            private double[] values2;
-            private DateTime startTime;
-            privite static int rawData;
-        #endregion
-        #region SerialPort Definition
-            privite static SerialPort serialPort = new SerialPort();
-            serialPort.PortName = "COM3";
-            serialPort.BaudRate = 115200;
-            serialPort.DataBits = 8;
-            serialPort.Parity = Parity.None;
-            serialPort.StopBits = StopBits.One;
-            serialPort.Handshake = Handshake.None;
-        #endregion
->>>>>>> 3fdd6c30472c121d037ac80fba788e7d4c4391be
         public MainWindow()
         {
             InitializeComponent();
             InitializePlot();
-
-            InitializeSerialPort();
 
             // create two loggers and add them to the plot
             Logger1 = DevGraph.Plot.Add.DataLogger();
             Logger2 = DevGraph.Plot.Add.DataLogger();
             //adding the axies
             RightAxis axis1 = (RightAxis)DevGraph.Plot.Axes.Right;
+
+
         }
         private void CurrentValidationTextBox(object sender, TextCompositionEventArgs e) //this method validates inputs into the current box
         {
@@ -105,9 +75,7 @@ namespace UniProjectUI2
         {
             if(Play_button.Content == "Play")
             {
-            
-            startTransmit();
-            timer.Elapsed += ReadData();
+            timer.Elapsed += GenerateRandomNumbers;
             timer.AutoReset = true; // Continuously fire the Elapsed event
             timer.Enabled = true; // Start the timer
 
@@ -123,27 +91,7 @@ namespace UniProjectUI2
                 Play_button.Content = "Play";
             }
         }
-        private void ReadData(object sender, ElapsedEventArgs e)
-        {
-            
-        }
-        private void InitializeSerialPort()
-        {
-             try
-             {
-               serialPort.Open();
-               if (s.IsOpen)
-             {
-                 Console.WriteLine("Connected");
-             }
-              }
-             catch (Exception e) { Console.WriteLine(e.Message); }
-        }
-        void startTransmit()
-            {                
-                byte[] dataToSend = new byte[] { 0x10, 1 };
-                sendCommand(dataToSend);                
-            }
+        private DateTime startTime;
         private void GenerateRandomNumbers(object sender, ElapsedEventArgs e)
         {
             Random rnd = new Random();
@@ -161,7 +109,7 @@ namespace UniProjectUI2
                 ((System.Timers.Timer)sender).Stop(); // Stop the timer
             }
         }
-        private void LEDColorChange(object sender, RoutedEventArgs e)
+        private void LEDColorChange (object sender, ElapsedEventArgs e)
         {
             RadioButton color = (sender as RadioButton);
             if(color.Content == Green_LED.Content)
@@ -182,11 +130,7 @@ namespace UniProjectUI2
         {
             try
             {
-<<<<<<< HEAD
                //serialPort.Write(dataToSend, 0, dataToSend.Length);
-=======
-                serialPort.Write(dataToSend, 0, dataToSend.Length);
->>>>>>> 3fdd6c30472c121d037ac80fba788e7d4c4391be
                 Thread.Sleep(250);
             }
                 catch (Exception e)
@@ -194,61 +138,26 @@ namespace UniProjectUI2
                Console.WriteLine(e.Message);
             }
         }
-        private void RTIAChange(object sender, SelectionChangedEventArgs e)
+        private void RTIAChange (object sender, ElapsedEventArgs e)
         {
             int RTIA=0;
             ComboBox RTIABox = sender as ComboBox;
-<<<<<<< HEAD
            // int RTIA = int.Parse(RTIA.SelectedItem);
-=======
-            int RTIA = int.Parse(RTIABox.SelectedItem.ToString());
->>>>>>> 3fdd6c30472c121d037ac80fba788e7d4c4391be
             for (int i = 0; i < 5; i++)
             {
                 sendCommand(new byte[] {(byte)(i+8), (byte)RTIA});
             }
         }
-        private void RINTChange(object sender, SelectionChangedEventArgs e)
+        private void RINTChange (object sender, ElapsedEventArgs e)
         {
             int RINT =0;
             ComboBox RINTBox = sender as ComboBox;
-<<<<<<< HEAD
            // int RINT = int.Parse(RTIA.SelectedItem);
             for (int i = 0; i < 5; i++)
-=======
-            int RINT = int.Parse(RINTBox.SelectedItem.ToString());
-            for (int i = 0; i < 11; i++)
->>>>>>> 3fdd6c30472c121d037ac80fba788e7d4c4391be
             {
                 sendCommand(new byte[] {(byte)(i+11), (byte) RINT});
             }
         }
-        private void ChangeCurrent(object sender, TextChangedEventArgs e)
-        {
-
-        }
-
-        private void RecordTimeChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
-
-        private void StartTest(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void StartRecord(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void StopRecording(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-
 
     }
 

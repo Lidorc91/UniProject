@@ -28,8 +28,8 @@ namespace UniProjectUI2
     {
         
         #region Variable Declarations
-            int packetNum = 1;
-            int bytesToRead = 22 * packetNum;
+           static int packetNum = 1;
+            static int bytesToRead = 22 * packetNum;
             byte[] buffer = new byte[bytesToRead];
             byte[] dataToSend;
             readonly ScottPlot.Plottables.DataLogger Logger1;
@@ -94,7 +94,7 @@ namespace UniProjectUI2
             {
             
             startTransmit();
-            timer.Elapsed += ReadData();
+            timer.Elapsed += ReadData;
             timer.AutoReset = true; // Continuously fire the Elapsed event
             timer.Enabled = true; // Start the timer
 
@@ -163,7 +163,7 @@ namespace UniProjectUI2
             TimeSpan elapsedTime = e.SignalTime - startTime;
 
             //update Graph
-            UpdatePlotWithNewData(elapsedTime.TotalSeconds, num1, num2);
+            //UpdatePlotWithNewData(elapsedTime.TotalSeconds, num1, num2);
 
             if (elapsedTime.TotalSeconds >= 100) // if enough time has passed
             {
@@ -231,7 +231,7 @@ namespace UniProjectUI2
 
         private void RecordTimeChanged(object sender, TextChangedEventArgs e)
         {
-            retrun  //not sure this method is needed
+            return;  //not sure this method is needed
         }
 
         private void StartTest(object sender, RoutedEventArgs e)

@@ -45,12 +45,13 @@ namespace UniProjectUI2
             private static int data;
         #endregion
         #region SerialPort Definition
-            private SerialPort serialPort;
+           static private SerialPort serialPort;
         #endregion
         public MainWindow()
         {
             serialPort = new SerialPort();
             InitializeComponent();
+          
             InitializePlot();
             InitializeSerialPort();
 
@@ -120,9 +121,9 @@ namespace UniProjectUI2
                     Thread.Sleep(10); //Fill up buffer
                     int bytesRead = serialPort.Read(buffer, 0, bytesToRead);
                 }
-                catch (Exception e)
+                catch (Exception e1)
                 {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e1.Message);
                 }
                 int[] data = decode(buffer);
             // Calculate elapsed time
@@ -142,7 +143,7 @@ namespace UniProjectUI2
              try
              {
                serialPort.Open();
-               if (s.IsOpen)
+               if (serialPort.IsOpen)
              {
                  Console.WriteLine("Connected");
              }
@@ -218,10 +219,10 @@ namespace UniProjectUI2
                 sendCommand(new byte[] {(byte)(i+11), (byte)RINT});
             }
         }
-        private void ChangeCurrent(object sender, TextChangedEventArgs e)
+        private void ChCurrent(object sender, TextChangedEventArgs e2)
         {
                 
-                int value = Current_inputbox.Text;
+                int value = int.Parse(Current_inputbox.Text);
                 int calcValue = (int)(Math.Round((value * 126) / 198.5));
                 for (int i = 0; i < 5; i++)
                 {

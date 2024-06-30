@@ -45,10 +45,11 @@ namespace UniProjectUI2
             private static int data;
         #endregion
         #region SerialPort Definition
-            private static SerialPort serialPort = new SerialPort();
+            private SerialPort serialPort;
         #endregion
         public MainWindow()
         {
+            serialPort = new SerialPort();
             InitializeComponent();
             InitializePlot();
             InitializeSerialPort();
@@ -106,7 +107,7 @@ namespace UniProjectUI2
             }
             if(Play_button.Content == "Stop")
             {
-                stopTransmit()
+                stopTransmit();
                 timer.Enabled = false;
                 Play_button.Content = "Play";
             }
@@ -231,7 +232,7 @@ namespace UniProjectUI2
 
         private void RecordTimeChanged(object sender, TextChangedEventArgs e)
         {
-            retrun  //not sure this method is needed
+            return;  //not sure this method is needed
         }
 
         private void StartTest(object sender, RoutedEventArgs e)

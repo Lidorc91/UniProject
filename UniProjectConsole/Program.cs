@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System;
+using System.Collections.Concurrent;
 using System.IO.Ports;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -16,6 +17,7 @@ namespace UARTConnection
             int bytesToRead = 22 * packetNum;
             byte[] buffer = new byte[bytesToRead];
             byte[] dataToSend;
+            ConcurrentQueue<int[]> queue = new ConcurrentQueue<int[]>();>
             #endregion
             #region SerialPort Definition
             SerialPort serialPort = new SerialPort();
@@ -203,6 +205,21 @@ namespace UARTConnection
                 int[] data = decode(buffer);
                 return data;
             }
+            int[] readContinuous(SerialPort serialPort)
+            {
+                try
+                {
+                    serialPort.ReadExisting(); //Read(Clear) old data in buffer
+                    Thread.Sleep(10); //Fill up buffer
+                    int bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+                int[] data = decode(buffer);
+                return data;
+            }
             int[,] Record()
             {
                 int recTime = 0;
@@ -234,7 +251,7 @@ namespace UARTConnection
                     Console.WriteLine(e.Message);
                 }
             }
-
+            
         }
     }
 }

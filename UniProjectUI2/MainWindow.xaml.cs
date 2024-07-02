@@ -79,6 +79,7 @@ namespace UniProjectUI2
             DevGraph.Plot.Title("Detectors' intensity");
             DevGraph.Plot.XLabel("Time [sec]");
             DevGraph.Plot.YLabel("Intensity [a.u]");
+            DevGraph.Plot.Axes.Bottom.Label.OffsetY = 4;
 
         }
         private void UpdatePlotWithNewData(double time, int[] data)
@@ -203,8 +204,13 @@ namespace UniProjectUI2
         }
         private void RTIAChange(object sender, SelectionChangedEventArgs e)
         {
+
+            if (!this.IsLoaded) //Makes sure that ui has loaded to stop premature running
+            {
+                return;
+            }
             ComboBox RTIABox = sender as ComboBox;
-            int RTIA = int.Parse(RTIABox.SelectedItem.ToString());
+            double RTIA = double.Parse(RTIABox.SelectedValue.ToString());
             for (int i = 0; i < 5; i++)
             {
                 sendCommand(new byte[] {(byte)(i+8), (byte)RTIA});
@@ -212,8 +218,12 @@ namespace UniProjectUI2
         }
         private void RINTChange(object sender, SelectionChangedEventArgs e)
         {
+            if (!this.IsLoaded) //Makes sure that ui has loaded to stop premature running
+            {
+                return;
+            }
             ComboBox RINTBox = sender as ComboBox;
-            int RINT = int.Parse(RINTBox.SelectedItem.ToString());
+            int RINT = int.Parse(RINTBox.SelectedValue.ToString());
             for (int i = 0; i < 11; i++)
             {
                 sendCommand(new byte[] {(byte)(i+11), (byte)RINT});
@@ -221,8 +231,12 @@ namespace UniProjectUI2
         }
         private void ChCurrent(object sender, TextChangedEventArgs e2)
         {
-                
-                int value = int.Parse(Current_inputbox.Text);
+
+            if (!this.IsLoaded) //Makes sure that ui has loaded to stop premature running
+            {
+                return;
+            }
+            int value = int.Parse(Current_inputbox.Text);
                 int calcValue = (int)(Math.Round((value * 126) / 198.5));
                 for (int i = 0; i < 5; i++)
                 {

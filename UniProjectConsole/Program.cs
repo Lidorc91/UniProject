@@ -17,7 +17,7 @@ namespace UARTConnection
             int bytesToRead = 22 * packetNum;
             byte[] buffer = new byte[bytesToRead];
             byte[] dataToSend;
-            ConcurrentQueue<int[]> queue = new ConcurrentQueue<int[]>();>
+           // ConcurrentQueue<int[]> queue = new ConcurrentQueue<int[]>();>
             #endregion
             #region SerialPort Definition
             SerialPort serialPort = new SerialPort();

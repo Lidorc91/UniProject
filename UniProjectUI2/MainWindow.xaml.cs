@@ -51,15 +51,17 @@ namespace UniProjectUI2
         {
             serialPort = new SerialPort();
             InitializeComponent();
-          
+
+            // create  loggers and add them to the plot
+            Logger1 = DevGraph.Plot.Add.DataLogger();
+            Logger2 = DevGraph.Plot.Add.DataLogger();
+            Logger3 = DevGraph.Plot.Add.DataLogger();
+            Logger4 = DevGraph.Plot.Add.DataLogger();
+            Logger5 = DevGraph.Plot.Add.DataLogger();
+
             InitializePlot();
             InitializeSerialPort();
 
-            // create two loggers and add them to the plot
-            Logger1 = DevGraph.Plot.Add.DataLogger();
-            Logger2 = DevGraph.Plot.Add.DataLogger();
-            //adding the axies
-            RightAxis axis1 = (RightAxis)DevGraph.Plot.Axes.Right;
         }
         private void CurrentValidationTextBox(object sender, TextCompositionEventArgs e) //this method validates inputs into the current box
         {
@@ -79,10 +81,27 @@ namespace UniProjectUI2
             DevGraph.Plot.Title("Detectors' intensity");
             DevGraph.Plot.XLabel("Time [sec]");
             DevGraph.Plot.YLabel("Intensity [a.u]");
+            DevGraph.Plot.Axes.Bottom.Label.OffsetY = 4;
+            //adding the axies
+            RightAxis axis1 = (RightAxis)DevGraph.Plot.Axes.Right;
+            Logger1.LegendText = "PD1";
+            Logger2.LegendText = "PD2";
+            Logger3.LegendText = "PD3";
+            Logger4.LegendText = "PD4";
+            Logger5.LegendText = "PD5";
+            DevGraph.Plot.ShowLegend(Orientation.Horizontal);
+            DevGraph.Plot.ScaleFactor = 2;
+            DevGraph.Refresh();
 
         }
         private void UpdatePlotWithNewData(double time, int[] data)
         {
+            int first = data[0];
+            int second = data[1];
+            int third = data[2];
+            int fourth = data[3];
+            int fifth = data[4];
+            
             Logger1.Add(data[0]);
             Logger2.Add(data[1]);
             Logger3.Add(data[2]);
@@ -92,26 +111,25 @@ namespace UniProjectUI2
         }
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            if(Play_button.Content == "Play")
-            {
-            
-            startTransmit();
-            timer.Elapsed += ReadData;
-            timer.AutoReset = true; // Continuously fire the Elapsed event
-            timer.Enabled = true; // Start the timer
-
-            // Record the start time
-            startTime = DateTime.Now;
-
-            // Turn the play button into a Stop buttion
-            Play_button.Content = "Stop";
-            }
             if(Play_button.Content == "Stop")
             {
                 stopTransmit();
                 timer.Enabled = false;
                 Play_button.Content = "Play";
+                return;
             }
+
+                startTransmit();
+                timer.Elapsed += ReadData;
+                timer.AutoReset = true; // Continuously fire the Elapsed event
+                timer.Enabled = true; // Start the timer
+
+                // Record the start time
+                startTime = DateTime.Now;
+
+                // Turn the play button into a Stop buttion
+                Play_button.Content = "Stop";
+            
         }
         private void ReadData(object sender, ElapsedEventArgs e)
         {
@@ -155,23 +173,6 @@ namespace UniProjectUI2
                 byte[] dataToSend = new byte[] { 0x10, 1 };
                 sendCommand(dataToSend);                
             }
-        private void GenerateRandomNumbers(object sender, ElapsedEventArgs e)
-        {
-            Random rnd = new Random();
-            int num1 = rnd.Next(1, 101); // Generates a random number between 1 and 100
-            int num2 = rnd.Next(1, 101); // Generates another random number between 1 and 100
-
-            // Calculate elapsed time
-            TimeSpan elapsedTime = e.SignalTime - startTime;
-
-            //update Graph
-            //UpdatePlotWithNewData(elapsedTime.TotalSeconds, num1, num2);
-
-            if (elapsedTime.TotalSeconds >= 100) // if enough time has passed
-            {
-                ((System.Timers.Timer)sender).Stop(); // Stop the timer
-            }
-        }
         private void LEDColorChange(object sender, RoutedEventArgs e)
         {
             RadioButton color = (sender as RadioButton);
@@ -203,8 +204,13 @@ namespace UniProjectUI2
         }
         private void RTIAChange(object sender, SelectionChangedEventArgs e)
         {
+
+            if (!this.IsLoaded) //Makes sure that ui has loaded to stop premature running
+            {
+                return;
+            }
             ComboBox RTIABox = sender as ComboBox;
-            int RTIA = int.Parse(RTIABox.SelectedItem.ToString());
+            double RTIA = double.Parse(RTIABox.SelectedValue.ToString());
             for (int i = 0; i < 5; i++)
             {
                 sendCommand(new byte[] {(byte)(i+8), (byte)RTIA});
@@ -212,8 +218,12 @@ namespace UniProjectUI2
         }
         private void RINTChange(object sender, SelectionChangedEventArgs e)
         {
+            if (!this.IsLoaded) //Makes sure that ui has loaded to stop premature running
+            {
+                return;
+            }
             ComboBox RINTBox = sender as ComboBox;
-            int RINT = int.Parse(RINTBox.SelectedItem.ToString());
+            int RINT = int.Parse(RINTBox.SelectedValue.ToString());
             for (int i = 0; i < 11; i++)
             {
                 sendCommand(new byte[] {(byte)(i+11), (byte)RINT});
@@ -221,8 +231,12 @@ namespace UniProjectUI2
         }
         private void ChCurrent(object sender, TextChangedEventArgs e2)
         {
-                
-                int value = int.Parse(Current_inputbox.Text);
+
+            if (!this.IsLoaded) //Makes sure that ui has loaded to stop premature running
+            {
+                return;
+            }
+            int value = int.Parse(Current_inputbox.Text);
                 int calcValue = (int)(Math.Round((value * 126) / 198.5));
                 for (int i = 0; i < 5; i++)
                 {

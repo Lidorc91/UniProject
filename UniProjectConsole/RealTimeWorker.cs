@@ -1,5 +1,5 @@
 
-class RealTimeWorkerThread implements Thread
+class RealTimeWorkerThread
 {
-
+   // implements Thread;
 }

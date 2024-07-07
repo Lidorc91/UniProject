@@ -43,9 +43,11 @@ namespace UniProjectUI2
             private double[] values2;
             private DateTime startTime;
             private static int data;
+            private object Lock = new object();
+            private object Lock2 = new object();
         #endregion
         #region SerialPort Definition
-           static private SerialPort serialPort;
+        static private SerialPort serialPort;
         #endregion
         public MainWindow()
         {
@@ -89,36 +91,40 @@ namespace UniProjectUI2
             Logger3.LegendText = "PD3";
             Logger4.LegendText = "PD4";
             Logger5.LegendText = "PD5";
-            DevGraph.Plot.ShowLegend(Orientation.Horizontal);
+            DevGraph.Plot.ShowLegend();
             DevGraph.Plot.ScaleFactor = 2;
             DevGraph.Refresh();
 
         }
         private void UpdatePlotWithNewData(double time, int[] data)
         {
-            int first = data[0];
-            int second = data[1];
-            int third = data[2];
-            int fourth = data[3];
-            int fifth = data[4];
-            
-            Logger1.Add(data[0]);
-            Logger2.Add(data[1]);
-            Logger3.Add(data[2]);
-            Logger4.Add(data[3]);
-            Logger5.Add(data[4]);
-            DevGraph.Refresh(); 
+            lock (Lock)
+            {
+                Logger1.Add(data[0]);
+                Logger2.Add(data[1]);
+                Logger3.Add(data[2]);
+                Logger4.Add(data[3]);
+                Logger5.Add(data[4]);
+                DevGraph.Refresh();
+            }
         }
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            if(Play_button.Content == "Stop")
+            if(Play_button.Content == "halt")
             {
                 stopTransmit();
                 timer.Enabled = false;
-                Play_button.Content = "Play";
+                Play_button.Content = "Resume";
                 return;
             }
-
+            if(Play_button.Content == "Resume")
+            {
+                startTransmit();
+                timer.Enabled = true;
+                Play_button.Content = "halt";
+                return;
+            }
+            //THis should only while the button says "play"
                 startTransmit();
                 timer.Elapsed += ReadData;
                 timer.AutoReset = true; // Continuously fire the Elapsed event
@@ -128,13 +134,15 @@ namespace UniProjectUI2
                 startTime = DateTime.Now;
 
                 // Turn the play button into a Stop buttion
-                Play_button.Content = "Stop";
+                Play_button.Content = "halt";
             
         }
         private void ReadData(object sender, ElapsedEventArgs e)
         {
+            lock (Lock)
+            {
                 try
-                {                 
+                {
                     serialPort.ReadExisting(); //Read(Clear) old data in buffer
                     Thread.Sleep(10); //Fill up buffer
                     int bytesRead = serialPort.Read(buffer, 0, bytesToRead);
@@ -144,10 +152,11 @@ namespace UniProjectUI2
                     Console.WriteLine(e1.Message);
                 }
                 int[] data = decode(buffer);
-            // Calculate elapsed time
-            TimeSpan elapsedTime = e.SignalTime - startTime;
-            //update Graph
-            UpdatePlotWithNewData(elapsedTime.TotalSeconds,data);
+                // Calculate elapsed time
+                TimeSpan elapsedTime = e.SignalTime - startTime;
+                //update Graph
+                UpdatePlotWithNewData(elapsedTime.TotalSeconds, data);
+            }
         }
         private void InitializeSerialPort()
         {
@@ -224,7 +233,7 @@ namespace UniProjectUI2
             }
             ComboBox RINTBox = sender as ComboBox;
             int RINT = int.Parse(RINTBox.SelectedValue.ToString());
-            for (int i = 0; i < 11; i++)
+            for (int i = 0; i < 5; i++)
             {
                 sendCommand(new byte[] {(byte)(i+11), (byte)RINT});
             }
@@ -298,6 +307,7 @@ namespace UniProjectUI2
             {
                 byte[] dataToSend = new byte[] { 0x10, 0 };
                 sendCommand(dataToSend);
+                
             }        
 
     }

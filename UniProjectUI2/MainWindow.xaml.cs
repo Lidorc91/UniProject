@@ -17,6 +17,8 @@ using ScottPlot.AxisPanels;
 using ScottPlot;
 using System.IO.Ports;
 using System.Runtime.CompilerServices;
+using MathWorks.MATLAB.Engine;
+
 
 namespace UniProjectUI2
 {
@@ -100,7 +102,7 @@ namespace UniProjectUI2
         {
             lock (Lock)
             {
-                Logger1.Add(data[0]);
+                Logger1.Add(data[0]); //These is where the data is added to the dev_graph
                 Logger2.Add(data[1]);
                 Logger3.Add(data[2]);
                 Logger4.Add(data[3]);
@@ -121,6 +123,7 @@ namespace UniProjectUI2
             {
                 startTransmit();
                 timer.Enabled = true;
+                Thread.Sleep(1000);
                 Play_button.Content = "halt";
                 return;
             }

@@ -5,6 +5,7 @@ using System.IO.Ports;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Timers;
+using Application.Model;
 
 namespace UARTConnection
 {
@@ -17,10 +18,16 @@ namespace UARTConnection
             int bytesToRead = 22 * packetNum;
             byte[] buffer = new byte[bytesToRead];
             byte[] dataToSend;
-            ConcurrentQueue<byte[]> recordQueue = new ConcurrentQueue<int[]>();
-            int queueSize;
-            bool isRecording = false;
-            bool isRunning = true;
+
+            //Record Variables
+            Queue<Packet> recordQueue = new Queue<Packet>();
+            //bool isRecording = false;
+            int recordPacketsToRead = 0;
+            int recTime = 0;
+            Packet copyPacket = new Packet();
+
+            //RealTime Variables - Not Implemented
+            /*bool isRunning = true;
             Timer timer;
 
             Thread realTimeThread = new Thread((SerialPort serialPort) =>
@@ -43,6 +50,8 @@ namespace UARTConnection
                 }
                 int[] data = decode(buffer);
             });
+
+            */
             #endregion
             #region SerialPort Definition
             SerialPort serialPort = new SerialPort();
@@ -85,13 +94,17 @@ namespace UARTConnection
                     #endregion
                     #region Record
                     case 3: //In Progress
-                        int[,] arr;
-                        arr = Record();
-                        for (int i = 0; i < arr.GetLength(0); i++)
+                        //int[,] arr;
+                        Record();
+                        int[] decodedArray;
+                        Console.WriteLine("Packets in Queue: " + recordQueue.Count());
+                        Console.WriteLine("From them we'll take " + recTime*100 + " Packets");
+                        for (int i = 0; i < recTime*100; i++)
                         {
-                            for (int j = 0; j < arr.GetLength(1); j++)
+                            decodedArray = decode(recordQueue.Dequeue().getData());
+                            for (int j = 0; j < decodedArray.Length; j++)
                             {
-                                Console.Write(arr[i, j] + " ");
+                                Console.Write(decodedArray[j] + " ");
                             }
                             Console.WriteLine();
                         }
@@ -217,20 +230,33 @@ namespace UARTConnection
             }
             int[] read(SerialPort serialPort)
             {
+                int bytesRead;
                 try
                 {
-                    if (isRecording)
+                    if (recordPacketsToRead > 0)
                     {
-                        recordQueue.Enqueue(serialPort.ReadExisting());
+                      
+                        while(serialPort.BytesToRead >= bytesToRead && recordQueue.Count < recordPacketsToRead)
+                        {
+                            copyPacket = new Packet();
+                            bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                            //if (bytesRead != bytesToRead) break; //not enough data
+                            copyPacket.setData(buffer, bytesToRead);
+                            recordQueue.Enqueue(copyPacket);
+                            --recordPacketsToRead;
+                        }                        
                         Thread.Sleep(10); //Fill up buffer
-                        int bytesRead = serialPort.Read(buffer, 0, bytesToRead);
-                        recordQueue.Enqueue(buffer);
+                        bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                        copyPacket = new Packet();
+                        copyPacket.setData(buffer, bytesToRead);
+                        recordQueue.Enqueue(copyPacket);
+                        --recordPacketsToRead;
                     }
                     else
                     {
                         serialPort.ReadExisting(); //Read(Clear) old data in buffer
                         Thread.Sleep(10); //Fill up buffer
-                        int bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                        bytesRead = serialPort.Read(buffer, 0, bytesToRead);
                     }                   
                 }
                 catch (Exception e)
@@ -253,25 +279,20 @@ namespace UARTConnection
                     Console.WriteLine(e.Message);
                 }
                 int[] data = decode(buffer);
-                queue.Enqueue(data);
             }
-            int[,] Record()
+            void Record()
             {
-                int recTime = 0;
                 Console.WriteLine("How many seconds would like to record ?");
                 recTime = int.Parse(Console.ReadLine());
-                int[,] data = new int[recTime * 100, 6];
-                isRecording = true;
-                for (int i = 0; i < data.GetLength(0); i++)
+                //int[,] data = new int[recTime * 100, 6];
+                recordPacketsToRead = 100 * recTime;
+                //isRecording = true;
+                serialPort.ReadExisting();
+                Thread.Sleep(10);
+                while(recordPacketsToRead > 0)
                 {
-                    data[i, 0] = i + 1; // FIX - Change to 0.01[s] jumps
-                    for (int j = 1; j < 6; j++)
-                    {
-                        int[] arr = read(serialPort);
-                        data[i, j] = arr[j - 1];
-                    }
+                    read(serialPort);
                 }
-                return data;
             }
 
             void sendCommand(byte[] dataToSend)

@@ -4,8 +4,8 @@ namespace Application.Model
 {
     class Packet
     {
-        private const int PACKET_SIZE = 22;
-        private const int PD_SIZE = 5;
+        public const int PACKET_SIZE = 22;
+        public const int PD_SIZE = 5;
         private byte[] _data;
 
 

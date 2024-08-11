@@ -18,8 +18,6 @@ using ScottPlot;
 using System.IO.Ports;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
-using Application.Model;
-using System.IO;
 
 
 namespace UniProjectUI2
@@ -279,7 +277,7 @@ namespace UniProjectUI2
 
         private void StartRecord(object sender, RoutedEventArgs e)
         {
-            int recTime = int.Parse(Recording_time_inputbox.Text);
+            int recTime = Int.Parse(Recording_time_inputbox.Text);
             recordPacketsToRead = 100 * recTime;
                 //isRecording = true;
                 serialPort.ReadExisting();

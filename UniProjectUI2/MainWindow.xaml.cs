@@ -1,4 +1,4 @@
-using ScottPlot.Colormaps;
+﻿using ScottPlot.Colormaps;
 using ScottPlot.Plottables;
 using ScottPlot.WPF;
 using System.Text;
@@ -17,6 +17,7 @@ using ScottPlot.AxisPanels;
 using ScottPlot;
 using System.IO.Ports;
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
 
 namespace UniProjectUI2
@@ -46,6 +47,11 @@ namespace UniProjectUI2
             private static int data;
             private object Lock = new object();
             private object Lock2 = new object();
+            //Record Variables
+            Queue<Packet> recordQueue = new Queue<Packet>();
+            int recordPacketsToRead = 0;
+            Packet copyPacket = new Packet();
+
         #endregion
         #region SerialPort Definition
         static private SerialPort serialPort;
@@ -114,7 +120,7 @@ namespace UniProjectUI2
         }
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            if(Play_button.Content == "halt")
+            if(Play_button.Content == "Halt")
             {
                 stopTransmit();
                 timer.Enabled = false;
@@ -126,7 +132,7 @@ namespace UniProjectUI2
                 startTransmit();
                 timer.Enabled = true;
                 Thread.Sleep(1000);
-                Play_button.Content = "halt";
+                Play_button.Content = "Halt";
                 return;
             }
             //THis should only while the button says "play"
@@ -139,7 +145,7 @@ namespace UniProjectUI2
                 startTime = DateTime.Now;
 
                 // Turn the play button into a Stop buttion
-                Play_button.Content = "halt";
+                Play_button.Content = "Halt";
             
         }
         private void ReadData(object sender, ElapsedEventArgs e)
@@ -271,6 +277,16 @@ namespace UniProjectUI2
 
         private void StartRecord(object sender, RoutedEventArgs e)
         {
+            int recTime = Int.Parse(Recording_time_inputbox.Text);
+            recordPacketsToRead = 100 * recTime;
+                //isRecording = true;
+                serialPort.ReadExisting();
+                Thread.Sleep(10);
+                while(recordPacketsToRead > 0)
+                {
+                    read(serialPort);
+                }
+            WriteToCsv(recTime); //Write as an CSV file.       
 
         }
 
@@ -313,8 +329,67 @@ namespace UniProjectUI2
                 byte[] dataToSend = new byte[] { 0x10, 0 };
                 sendCommand(dataToSend);
                 
+            }
+        int[] read(SerialPort serialPort)
+            {
+                int bytesRead;
+                try
+                {
+                    if (recordPacketsToRead > 0)
+                    {
+                      
+                        while(serialPort.BytesToRead >= bytesToRead && recordQueue.Count < recordPacketsToRead)
+                        {
+                            copyPacket = new Packet();
+                            bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                            //if (bytesRead != bytesToRead) break; //not enough data
+                            copyPacket.setData(buffer, bytesToRead);
+                            recordQueue.Enqueue(copyPacket);
+                            --recordPacketsToRead;
+                        }                        
+                        Thread.Sleep(10); //Fill up buffer
+                        bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                        copyPacket = new Packet();
+                        copyPacket.setData(buffer, bytesToRead);
+                        recordQueue.Enqueue(copyPacket);
+                        --recordPacketsToRead;
+                    }
+                    else
+                    {
+                        serialPort.ReadExisting(); //Read(Clear) old data in buffer
+                        Thread.Sleep(10); //Fill up buffer
+                        bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                    }                   
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+                int[] data = decode(buffer);
+                return data;
             }        
+public void WriteToCsv(int recTime)
+{
+    string filePath = @"C:\path\to\your\output.csv";
 
+    // Open or create the CSV file for writing
+    using (StreamWriter writer = new StreamWriter(filePath))
+    {
+        // Iterate over the data
+        for (int i = 0; i < recTime * 100; i++)
+        {
+            int[] decodedArray = decode(recordQueue.Dequeue().getData());
+
+            // Convert the decoded array to a comma-separated string
+            string line = string.Join(",", decodedArray);
+
+            // Write the line to the CSV file
+            writer.WriteLine(line);
+        }
+    }
+
+    Console.WriteLine("Data has been written to CSV file successfully.");
+}
     }
 
 }

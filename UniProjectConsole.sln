@@ -5,7 +5,7 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniProjectConsole", "UniProjectConsole\UniProjectConsole.csproj", "{C1B603E8-0399-47B6-B1F9-29923766DE73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniProjectUI2", "UniProjectUI2\UniProjectUI2.csproj", "{11263B5E-7A70-4295-A1C8-8F5E951F70A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniProjectUI2", "UniProjectUI2\UniProjectUI2.csproj", "{11263B5E-7A70-4295-A1C8-8F5E951F70A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

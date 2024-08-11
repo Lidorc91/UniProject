@@ -6,10 +6,15 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <StartupObject>UniProjectUI2.App</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="biulogo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="App.xaml" />
   </ItemGroup>
 
   <ItemGroup>

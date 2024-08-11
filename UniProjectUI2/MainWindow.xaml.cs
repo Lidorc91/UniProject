@@ -17,7 +17,6 @@ using ScottPlot.AxisPanels;
 using ScottPlot;
 using System.IO.Ports;
 using System.Runtime.CompilerServices;
-using MathWorks.MATLAB.Engine;
 
 
 namespace UniProjectUI2
@@ -86,6 +85,9 @@ namespace UniProjectUI2
             DevGraph.Plot.XLabel("Time [sec]");
             DevGraph.Plot.YLabel("Intensity [a.u]");
             DevGraph.Plot.Axes.Bottom.Label.OffsetY = 4;
+            DevGraph.Plot.Axes.SetLimitsY(-100, 32000);
+            DashGraph.Plot.XLabel("Time [sec]");
+            DashGraph.Plot.YLabel("Absorption Coefficient [1/m]");
             //adding the axies
             RightAxis axis1 = (RightAxis)DevGraph.Plot.Axes.Right;
             Logger1.LegendText = "PD1";
@@ -241,10 +243,10 @@ namespace UniProjectUI2
                 sendCommand(new byte[] {(byte)(i+11), (byte)RINT});
             }
         }
-        private void ChCurrent(object sender, TextChangedEventArgs e2)
+        private void ChCurrent(object sender, RoutedEventArgs e2)
         {
 
-            if (!this.IsLoaded) //Makes sure that ui has loaded to stop premature running
+            if (!this.IsLoaded || !serialPort.IsOpen) //Makes sure that ui has loaded to stop premature running
             {
                 return;
             }
@@ -257,7 +259,7 @@ namespace UniProjectUI2
                 serialPort.DiscardInBuffer();
         }
 
-        private void RecordTimeChanged(object sender, TextChangedEventArgs e)
+        private void RecordTimeChanged(object sender, RoutedEventArgs e)
         {
             return;  //not sure this method is needed
         }

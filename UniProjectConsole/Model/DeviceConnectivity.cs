@@ -10,13 +10,13 @@ namespace Application.Model
 {
     partial class DeviceManager : INotifyPropertyChanged
     {
-        private ConnectionManager _connection;
+        private IConnectionManager _connection;
         private SerialPortManager _serialPortManager;
 
         public DeviceManager()
         {
             //Initialize Relevant Connectivity (Serial Port / Bluetooth)
-            //_connection = new Connectivity(new SerialPortManager());
+            //_connection = new ConnectionManager(new SerialPortManager());
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -31,7 +31,7 @@ namespace Application.Model
         {
             if (_serialPortManager == null)
             {
-                _serialPortManager = new SerialPortManager();
+                _serialPortManager = SerialPortManager.GetInstance();
                 _serialPortManager.Connect(port);
             }
         }

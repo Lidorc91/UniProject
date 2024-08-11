@@ -17,8 +17,9 @@ using ScottPlot.AxisPanels;
 using ScottPlot;
 using System.IO.Ports;
 using System.Runtime.CompilerServices;
-using System.Collections.Generic;upda
-
+using System.Collections.Generic;
+using Application.Model;
+using System.IO;
 
 
 namespace UniProjectUI2

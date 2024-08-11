@@ -8,9 +8,13 @@ using System.Threading.Tasks;
 
 namespace Application.ViewModel
 {
-    class DeviceViewModel : INotifyPropertyChanged
+    // Data Setup for ViewModel
+    partial class DeviceViewModel : INotifyPropertyChanged
     {
         private DeviceManager _manager;
+
+        //Data Binding Variables
+
 
         public DeviceViewModel(DeviceManager manager)
         {
@@ -21,7 +25,6 @@ namespace Application.ViewModel
                     NotifyPropertyChanged("VM_" + e.PropertyName);
                 };
         }
-
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

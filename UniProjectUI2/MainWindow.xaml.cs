@@ -188,7 +188,20 @@ namespace UniProjectUI2
         void startTransmit()
             {                
                 byte[] dataToSend = new byte[] { 0x10, 1 };
-                sendCommand(dataToSend);                
+                sendCommand(dataToSend); 
+                if(Green_LED.IsChecked == true)
+                {
+                    byte led=0;
+                    dataToSend = new byte[] { 0x20, led };
+                    sendCommand(dataToSend);
+
+                }
+                if(Red_LED.IsChecked == true)
+                {
+                    byte led=1;
+                    dataToSend = new byte[] { 0x20, led };
+                    sendCommand(dataToSend);
+                }               
             }
         private void LEDColorChange(object sender, RoutedEventArgs e)
         {

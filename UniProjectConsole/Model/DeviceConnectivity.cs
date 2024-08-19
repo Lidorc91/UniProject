@@ -31,7 +31,7 @@ namespace Application.Model
         {
             if (_serialPortManager == null)
             {
-                _serialPortManager = SerialPortManager.GetInstance();
+                //_serialPortManager = SerialPortManager.GetInstance();
                 _serialPortManager.Connect(port);
             }
         }

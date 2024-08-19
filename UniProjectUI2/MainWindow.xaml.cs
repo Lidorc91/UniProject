@@ -88,6 +88,7 @@ namespace UniProjectUI2
             DevGraph.Plot.XLabel("Time [sec]");
             DevGraph.Plot.YLabel("Intensity [a.u]");
             DevGraph.Plot.Axes.Bottom.Label.OffsetY = 4;
+            DevGraph.Plot.Axes.Auto
             DevGraph.Plot.Axes.SetLimitsY(bottom: -100, top: 33000);
             DashGraph.Plot.XLabel("Time [sec]");
             DashGraph.Plot.YLabel("Absorption Coefficient [1/m]");
@@ -112,6 +113,8 @@ namespace UniProjectUI2
                 Logger3.Add(data[2]);
                 Logger4.Add(data[3]);
                 Logger5.Add(data[4]);
+                if(data[0] < 29,000)
+                    DevGraph.Plot.Axes.SetLimitsY(bottom: -100, top: 33000);
                 DevGraph.Refresh();
             }
         }

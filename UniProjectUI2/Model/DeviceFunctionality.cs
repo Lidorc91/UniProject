@@ -16,7 +16,7 @@ namespace Application.Model
         private int recTime;
         Packet copyPacket = new Packet();
 
-        private void changeLed()
+        private void ChangeLed()
         {
             byte led = 1;
             Console.WriteLine("Enter LED Color Number: (0 - Green , 1 - Red)");
@@ -24,7 +24,7 @@ namespace Application.Model
             byte[] dataToSend = new byte[] { 0x20, led };
             sendCommand(dataToSend);
         }
-        private void changeCurrent()
+        private void ChangeCurrent()
         {
             Console.WriteLine("Pick a value between 0 and 200:");
             int value = int.Parse(Console.ReadLine());
@@ -36,7 +36,7 @@ namespace Application.Model
             _serialPortManager.EmptyIncomingDataBuffer();
         }
 
-        private Packet readPacket()
+        private Packet ReadPacket()
         {
             byte[] buffer = new byte[Packet.PACKET_SIZE];
             Packet packet = new Packet(buffer);

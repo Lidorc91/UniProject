@@ -88,7 +88,7 @@ namespace UniProjectUI2
             DevGraph.Plot.XLabel("Time [sec]");
             DevGraph.Plot.YLabel("Intensity [a.u]");
             DevGraph.Plot.Axes.Bottom.Label.OffsetY = 4;
-            DevGraph.Plot.Axes.SetLimitsY(-100, 32000);
+            DevGraph.Plot.Axes.SetLimitsY(bottom: -100, top: 33000);
             DashGraph.Plot.XLabel("Time [sec]");
             DashGraph.Plot.YLabel("Absorption Coefficient [1/m]");
             //adding the axies

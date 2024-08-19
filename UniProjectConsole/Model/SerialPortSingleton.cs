@@ -22,7 +22,7 @@ namespace Application.Model
             this._serialPort.Handshake = Handshake.None;
         }
 
-        public SerialPortManager GetInstance()
+        public static SerialPortManager GetInstance()
         {
             if (_instance == null)
             {

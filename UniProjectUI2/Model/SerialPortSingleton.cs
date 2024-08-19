@@ -7,22 +7,13 @@ namespace Application.Model
     {
         private static SerialPortManager _instance;
 
-        private SerialPort _serialPort;
-        private String _port { get; set; }
-
         private SerialPortManager()
         {
             this._serialPort = new SerialPort();
-
-            //Serial Port settings
-            this._serialPort.BaudRate = 115200;
-            this._serialPort.DataBits = 8;
-            this._serialPort.Parity = Parity.None;
-            this._serialPort.StopBits = StopBits.One;
-            this._serialPort.Handshake = Handshake.None;
+            DefineConnectionSettings(this._serialPort);
         }
 
-        public static SerialPortManager GetInstance()
+        public static IConnectionManager GetInstance()
         {
             if (_instance == null)
             {

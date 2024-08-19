@@ -5,6 +5,20 @@ namespace Application.Model
 {
     partial class SerialPortManager
     {
+        /*  Variable Declaration  */
+        private SerialPort _serialPort;
+        private String _port { get; set; }
+
+        /*  Connection Methods  */
+        private void DefineConnectionSettings(SerialPort _serialPort)
+        {
+            this._serialPort.BaudRate = 115200;
+            this._serialPort.DataBits = 8;
+            this._serialPort.Parity = Parity.None;
+            this._serialPort.StopBits = StopBits.One;
+            this._serialPort.Handshake = Handshake.None;
+        }
+
         public void Connect(string port)
         {
             this._port = port;
@@ -23,6 +37,24 @@ namespace Application.Model
             }
         }
 
+        public void Initiliaze()
+        {
+            if (_serialPort == null)
+            {
+                _serialPort = new SerialPort();
+                DefineConnectionSettings(_serialPort);
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_serialPort != null)
+            {
+                _serialPort.Dispose();
+            }
+        }
+
+        /*  Data Management Methods  */
         public void SendData(Packet buffer)
         {
             _serialPort.Write(buffer.getData(), 0, Packet.PACKET_SIZE);

@@ -11,12 +11,16 @@ namespace Application.Model
     partial class DeviceManager : INotifyPropertyChanged
     {
         private IConnectionManager _connection;
-        private SerialPortManager _serialPortManager;
 
         public DeviceManager()
         {
-            //Initialize Relevant Connectivity (Serial Port / Bluetooth)
-            //_connection = new ConnectionManager(new SerialPortManager());
+            _connection = GetInstance();
+        }
+
+        //Initialize Relevant Connectivity (SerialPort / Bluetooth / etc.)
+        private SerialPortManager GetInstance()
+        {
+            return (SerialPortManager)SerialPortManager.GetInstance();
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -27,29 +31,19 @@ namespace Application.Model
                 this.PropertyChanged(this, new PropertyChangedEventArgs(propName));
         }
 
-        public void Initialize(String port)
-        {
-            if (_serialPortManager == null)
-            {
-                _serialPortManager = SerialPortManager.GetInstance();
-                _serialPortManager.Connect(port);
-            }
-        }
-
         public void Connect(String port)
         {
             _connection.Connect(port);
-            //_serialPortManager = new SerialPortManager(port);
-            //_serialPortManager.OpenPort();
         }
+
         public void Disconnect()
         {
-            _serialPortManager.Disconnect();
+            _connection.Disconnect();
         }
 
         void sendCommand(byte[] dataToSend)
         {
-            if (!_serialPortManager.IsConnected())
+            if (!_connection.IsConnected())
             {
                 return;
             }
@@ -57,7 +51,7 @@ namespace Application.Model
             try
             {
                 Packet packet = new Packet(dataToSend);
-                _serialPortManager.SendData(packet);
+                _connection.SendData(packet);
                 Thread.Sleep(250);
                 Console.WriteLine("Operation Successful");
             }

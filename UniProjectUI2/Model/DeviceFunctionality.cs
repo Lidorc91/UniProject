@@ -33,14 +33,14 @@ namespace Application.Model
             {
                 sendCommand(new byte[] { (byte)(i), (byte)calcValue });
             }
-            _serialPortManager.EmptyIncomingDataBuffer();
+            _connection.EmptyIncomingDataBuffer();
         }
 
         private Packet ReadPacket()
         {
             byte[] buffer = new byte[Packet.PACKET_SIZE];
             Packet packet = new Packet(buffer);
-            int bytesRead = _serialPortManager.ReceiveData(packet, Packet.PACKET_SIZE);
+            int bytesRead = _connection.ReceiveData(packet, Packet.PACKET_SIZE);
             return (bytesRead == 0) ? null : packet;
         }
     }

@@ -13,9 +13,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Timers;
+using System;
+using System.IO;
+using System.Linq;
+using System.IO.Ports;
 using ScottPlot.AxisPanels;
 using ScottPlot;
-using System.IO.Ports;
 using System.Runtime.CompilerServices;
 using Application.ViewModel;
 using Application.Model;
@@ -48,6 +51,12 @@ namespace UniProjectUI2
             private static int data;
             private object Lock = new object();
             private object Lock2 = new object();
+            
+            //Record Variables
+            Queue<Packet> recordQueue = new Queue<Packet>();
+            int recordPacketsToRead = 0;
+            int recTime = 0;
+            Packet copyPacket = new Packet();
 
 
         #endregion
@@ -92,7 +101,7 @@ namespace UniProjectUI2
             DevGraph.Plot.XLabel("Time [sec]");
             DevGraph.Plot.YLabel("Intensity [a.u]");
             DevGraph.Plot.Axes.Bottom.Label.OffsetY = 4;
-            DevGraph.Plot.Axes.SetLimitsY(bottom: -100, top: 33000);
+            DevGraph.Plot.Axis.SetLimitsY(bottom: 0, top: 33000);
             DashGraph.Plot.XLabel("Time [sec]");
             DashGraph.Plot.YLabel("Absorption Coefficient [1/m]");
             //adding the axies
@@ -116,8 +125,6 @@ namespace UniProjectUI2
                 Logger3.Add(data[2]);
                 Logger4.Add(data[3]);
                 Logger5.Add(data[4]);
-                if(data[0] > 25000)
-                    DevGraph.Plot.Axes.AutoScale();
                 DevGraph.Refresh();
             }
         }
@@ -283,17 +290,53 @@ namespace UniProjectUI2
 
         private void RecordTimeChanged(object sender, RoutedEventArgs e)
         {
-            return;  //not sure this method is needed
-        }
-
-        private void StartTest(object sender, RoutedEventArgs e)
-        {
+            
+            recTime = int.Parse(Recording_time_inputbox.Text);
 
         }
 
+        void Record()
+            {
+ 
+                //int[,] data = new int[recTime * 100, 6];
+                recordPacketsToRead = 100 * recTime;
+                //isRecording = true;
+                serialPort.ReadExisting();
+                Thread.Sleep(10);
+                while(recordPacketsToRead > 0)
+                {
+                        while(serialPort.BytesToRead >= bytesToRead && recordQueue.Count < recordPacketsToRead)
+                        {
+                            copyPacket = new Packet();
+                            bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                            copyPacket.setData(buffer, bytesToRead);
+                            recordQueue.Enqueue(copyPacket);
+                            --recordPacketsToRead;
+                        }                        
+                        Thread.Sleep(10); //Fill up buffer
+                        bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                        copyPacket = new Packet();
+                        copyPacket.setData(buffer, bytesToRead);
+                        recordQueue.Enqueue(copyPacket);
+                        --recordPacketsToRead;
+                }
+            }
         private void StartRecord(object sender, RoutedEventArgs e)
         {
+            Record();
+            int[] decodedArray;
+            for (int i = 0; i < recTime*100; i++)
+            {
+                decodedArray = decode(recordQueue.Dequeue().getData());
+            }
+        // Specify the file path
+        string filePath = "output.csv";
 
+        // Convert the array to a CSV format string
+        string csvContent = string.Join(",", decodedArray);
+
+        // Write the CSV content to a file
+        File.WriteAllText(filePath, csvContent);
         }
 
         private void StopRecording(object sender, RoutedEventArgs e)

@@ -295,39 +295,54 @@ namespace UniProjectUI2
 
         }
 
-        void Record()
+        private void Record(object sender, System.Timers.ElapsedEventArgs e)
             {
  
-                //int[,] data = new int[recTime * 100, 6];
                 recordPacketsToRead = 100 * recTime;
-                //isRecording = true;
-                serialPort.ReadExisting();
-                Thread.Sleep(10);
-                while(recordPacketsToRead > 0)
-                {
-                        while(serialPort.BytesToRead >= bytesToRead && recordQueue.Count < recordPacketsToRead)
-                        {
-                            copyPacket = new Packet();
-                            bytesRead = serialPort.Read(buffer, 0, bytesToRead);
-                            copyPacket.setData(buffer, bytesToRead);
-                            recordQueue.Enqueue(copyPacket);
-                            --recordPacketsToRead;
-                        }                        
-                        Thread.Sleep(10); //Fill up buffer
-                        bytesRead = serialPort.Read(buffer, 0, bytesToRead);
-                        copyPacket = new Packet();
-                        copyPacket.setData(buffer, bytesToRead);
-                        recordQueue.Enqueue(copyPacket);
-                        --recordPacketsToRead;
+                copyPacket = new Packet();
+                bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                copyPacket.setData(buffer, bytesToRead);
+                recordQueue.Enqueue(copyPacket);
+                --recordPacketsToRead;
+                    
+                Thread.Sleep(10); //Fill up buffer
+                bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                copyPacket = new Packet();
+                copyPacket.setData(buffer, bytesToRead);
+                recordQueue.Enqueue(copyPacket);
+                --recordPacketsToRead;
+                RecTime.Content = recordPacketsToRead.ToString();
+
+                //now for standard reading
+                int[] data = decode(copyPacket.getData());
+                // Calculate elapsed time
+                TimeSpan elapsedTime = e.SignalTime - startTime;
+                //update Graph
+                UpdatePlotWithNewData(elapsedTime.TotalSeconds, data);
+                if(recordPacketsToRead == 0)
+                    EndRecording();
                 }
             }
         private void StartRecord(object sender, RoutedEventArgs e)
         {
-            Record();
+                // Unsubscribe the existing event handler
+                timer.Elapsed -= ReadData;
+
+                // Subscribe the new event handler
+                timer.Elapsed += Record;
+        }
+        void EndRecording()
+        {
+            // Unsubscribe the existing event handler
+            timer.Elapsed -= Record;
+
+            // Subscribe the new event handler
+            timer.Elapsed += ReadData;
+            
             int[] decodedArray;
             for (int i = 0; i < recTime*100; i++)
             {
-                decodedArray = decode(recordQueue.Dequeue().getData());
+                decodedArray[i] = decode(recordQueue.Dequeue().getData());
             }
         // Specify the file path
         string filePath = "output.csv";
@@ -338,7 +353,6 @@ namespace UniProjectUI2
         // Write the CSV content to a file
         File.WriteAllText(filePath, csvContent);
         }
-
         private void StopRecording(object sender, RoutedEventArgs e)
         {
 

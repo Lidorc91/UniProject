@@ -46,7 +46,6 @@
 						</Grid>
 					</GroupBox>
 					<Button x:Name="Play_button" Content="Play" HorizontalAlignment="Left" Margin="26,124,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="PlayButton_Click"/>
-					<Button x:Name="Test_button" Content="Test" HorizontalAlignment="Left" Margin="26,151,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="StartTest"/>
 					<Button x:Name="Record_button" Content="Record" HorizontalAlignment="Left" Margin="26,176,0,0" VerticalAlignment="Top" Height="20" Width="86" Click="StartRecord"/>
 					<Button x:Name="RecordStop_button_Copy" Content="Stop Recording" HorizontalAlignment="Left" Margin="26,201,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="StopRecording"/>
 					<ComboBox x:Name="RTIA_box" HorizontalAlignment="Left" Margin="10,250,0,0" VerticalAlignment="Top" Width="120" SelectedIndex="4" SelectionChanged="RTIAChange" SelectedValuePath="Content">

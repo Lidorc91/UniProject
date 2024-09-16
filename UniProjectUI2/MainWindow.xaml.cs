@@ -54,9 +54,11 @@ namespace UniProjectUI2
             
             //Record Variables
             Queue<Packet> recordQueue = new Queue<Packet>();
-            int recordPacketsToRead = 0;
-            int recTime = 0;
+            static int recordPacketsToRead = 0;
+            static int recTime = 0;
             Packet copyPacket = new Packet();
+            static bool isRec = false;
+        static int reccount = 0;
 
 
         #endregion
@@ -70,6 +72,7 @@ namespace UniProjectUI2
 
             vm = new DeviceViewModel(new DeviceManager());
             DataContext = vm;
+            
 
             // create  loggers and add them to the plot
             Logger1 = DevGraph.Plot.Add.DataLogger();
@@ -101,7 +104,7 @@ namespace UniProjectUI2
             DevGraph.Plot.XLabel("Time [sec]");
             DevGraph.Plot.YLabel("Intensity [a.u]");
             DevGraph.Plot.Axes.Bottom.Label.OffsetY = 4;
-            DevGraph.Plot.Axis.SetLimitsY(bottom: 0, top: 33000);
+            DevGraph.Plot.Axes.SetLimitsY(bottom: 0, top: 33000);
             DashGraph.Plot.XLabel("Time [sec]");
             DashGraph.Plot.YLabel("Absorption Coefficient [1/m]");
             //adding the axies
@@ -162,11 +165,20 @@ namespace UniProjectUI2
         {
             lock (Lock)
             {
-                try
+               try
                 {
                     serialPort.ReadExisting(); //Read(Clear) old data in buffer
                     Thread.Sleep(10); //Fill up buffer
                     int bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                    if (isRec == true)
+                    {
+                        Record_button.Content = "Record Active";
+                        copyPacket = new Packet();
+                        copyPacket.setData(buffer, bytesToRead);
+                        recordQueue.Enqueue(copyPacket);
+                        reccount++;
+                        if (recordPacketsToRead == reccount) recordEnd();
+                    }
                 }
                 catch (Exception e1)
                 {
@@ -287,56 +299,58 @@ namespace UniProjectUI2
                 }
                 serialPort.DiscardInBuffer();
         }
-
         private void RecordTimeChanged(object sender, RoutedEventArgs e)
         {
             
             recTime = int.Parse(Recording_time_inputbox.Text);
 
         }
-
-        void Record()
+        void recordEnd()
+        {
+            int[,] decodedArray = new int[recTime * 100, 5];
+            isRec = false;
+            for (int i = 0; i < recTime * 100; i++)
             {
- 
-                //int[,] data = new int[recTime * 100, 6];
-                recordPacketsToRead = 100 * recTime;
-                //isRecording = true;
-                serialPort.ReadExisting();
-                Thread.Sleep(10);
-                while(recordPacketsToRead > 0)
+                int[] datas = decode(recordQueue.Dequeue().getData());
+                for (int j = 0; j < 5; j++)
+                { decodedArray[i, j] = datas[j]; }
+            }
+            // Specify the file path
+            string filePath = @"C:\Users\Lidor Cohen\source\repos\UniProjectConsole\UniProjectUI2\output.csv";
+
+            // Create a new StreamWriter
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                // Get the dimensions of the array
+                int rows = decodedArray.GetLength(0);
+                int columns = decodedArray.GetLength(1);
+
+                // Iterate through each row
+                for (int row = 0; row < rows; row++)
                 {
-                        while(serialPort.BytesToRead >= bytesToRead && recordQueue.Count < recordPacketsToRead)
-                        {
-                            copyPacket = new Packet();
-                            bytesRead = serialPort.Read(buffer, 0, bytesToRead);
-                            copyPacket.setData(buffer, bytesToRead);
-                            recordQueue.Enqueue(copyPacket);
-                            --recordPacketsToRead;
-                        }                        
-                        Thread.Sleep(10); //Fill up buffer
-                        bytesRead = serialPort.Read(buffer, 0, bytesToRead);
-                        copyPacket = new Packet();
-                        copyPacket.setData(buffer, bytesToRead);
-                        recordQueue.Enqueue(copyPacket);
-                        --recordPacketsToRead;
+                    // Create an array to hold the row data
+                    string[] rowData = new string[columns];
+
+                    // Iterate through each column
+                    for (int col = 0; col < columns; col++)
+                    {
+                        rowData[col] = decodedArray[row, col].ToString();
+                    }
+
+                    // Join the row data with commas and write to the file
+                    writer.WriteLine(string.Join(",", rowData));
                 }
             }
+            recordQueue.Clear();
+            recordPacketsToRead = 0;
+            Record_button.Content = "Record";
+            Record_button.IsEnabled = true;
+        }
         private void StartRecord(object sender, RoutedEventArgs e)
         {
-            Record();
-            int[] decodedArray;
-            for (int i = 0; i < recTime*100; i++)
-            {
-                decodedArray = decode(recordQueue.Dequeue().getData());
-            }
-        // Specify the file path
-        string filePath = "output.csv";
-
-        // Convert the array to a CSV format string
-        string csvContent = string.Join(",", decodedArray);
-
-        // Write the CSV content to a file
-        File.WriteAllText(filePath, csvContent);
+            recordPacketsToRead = recTime * 100;
+            isRec = true;
+            Record_button.IsEnabled = false;
         }
 
         private void StopRecording(object sender, RoutedEventArgs e)
@@ -379,6 +393,7 @@ namespace UniProjectUI2
                 sendCommand(dataToSend);
                 
             }
+
 
     }
 

@@ -31,9 +31,9 @@
 			<TabItem x:Name="Dev_tab" Header="Developer" HorizontalContentAlignment="Stretch" Height="20" VerticalAlignment="Top">
 				<Grid Background="#FFE5E5E5" Height="585" Margin="0,0,2,0">
 					<Label x:Name="Sensor_version" Content="Sensor Version" HorizontalAlignment="Left" Margin="10,75,0,0" VerticalAlignment="Top" Height="24"/>
-					<Label x:Name="Recording_time" Content="Recording Time[s]" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" Height="24"/>
+					<Label x:Name="Recording_time" Content="Recording Time \n [Hundereds of Samples]" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" Height="24"/>
 					<Label x:Name="Current" Content="Current[mA]" HorizontalAlignment="Left" Margin="10,25,0,0" VerticalAlignment="Top" Height="24"/>
-					<TextBox x:Name="Current_inputbox" HorizontalAlignment="Left" Margin="120,25,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox" LostFocus="ChCurrent"/>
+					<TextBox x:Name="Current_inputbox" HorizontalAlignment="Left" Margin="120,25,0,0" TextWrapping="Wrap" Text="10" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox" LostFocus="ChCurrent"/>
 					<TextBox x:Name="Recording_time_inputbox" HorizontalAlignment="Left" Margin="120,50,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox" LostFocus="RecordTimeChanged"/>
 					<Label x:Name="RecTime" Content="Not Recording" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Height="24"/>
 					<ComboBox x:Name="Sensor_version1" HorizontalAlignment="Left" Margin="120,75,0,0" VerticalAlignment="Top" Width="80" Height="24" SelectedIndex="0">
@@ -48,21 +48,22 @@
 					</GroupBox>
 					<Button x:Name="Play_button" Content="Play" HorizontalAlignment="Left" Margin="26,124,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="PlayButton_Click"/>
 					<Button x:Name="Record_button" Content="Record" HorizontalAlignment="Left" Margin="26,176,0,0" VerticalAlignment="Top" Height="20" Width="86" Click="StartRecord"/>
-					<Button x:Name="RecordStop_button_Copy" Content="Stop Recording" HorizontalAlignment="Left" Margin="26,201,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="StopRecording"/>
-					<ComboBox x:Name="RTIA_box" HorizontalAlignment="Left" Margin="10,250,0,0" VerticalAlignment="Top" Width="120" SelectedIndex="4" SelectionChanged="RTIAChange" SelectedValuePath="Content">
+					<Button x:Name="View_button" Content="Change to Slide View" HorizontalAlignment="Left" Margin="26,201,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="ChangeView"/>
+          <Button x:Name="Analooe" Content="Analyze" HorizontalAlignment="Left" Margin="26,226,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="Analyze"/>
+					<ComboBox x:Name="RTIA_box" HorizontalAlignment="Left" Margin="10,300,0,0" VerticalAlignment="Top" Width="120" SelectedIndex="4" SelectionChanged="RTIAChange" SelectedValuePath="Content">
 						<ComboBoxItem Content="200"/>
 						<ComboBoxItem Content="100"/>
 						<ComboBoxItem Content="50"/>
 						<ComboBoxItem Content="25"/>
 						<ComboBoxItem Content="12.5"/>
 					</ComboBox>
-					<ComboBox x:Name="RINT_box" HorizontalAlignment="Left" Margin="10,300,0,0" VerticalAlignment="Top" Width="120" SelectedIndex="2" SelectionChanged="RINTChange" SelectedValuePath="Content">
+					<ComboBox x:Name="RINT_box" HorizontalAlignment="Left" Margin="10,350,0,0" VerticalAlignment="Top" Width="120" SelectedIndex="2" SelectionChanged="RINTChange" SelectedValuePath="Content">
 						<ComboBoxItem Content="400"/>
 						<ComboBoxItem Content="200"/>
 						<ComboBoxItem Content="100"/>
 					</ComboBox>
-					<Label x:Name="RTIA_labal" Content="RTIA[Kohm]" HorizontalAlignment="Left" Margin="10,225,0,0" VerticalAlignment="Top" Height="24"/>
-					<Label x:Name="RINT_labal" Content="RINT[Kohm]" HorizontalAlignment="Left" Margin="10,275,0,0" VerticalAlignment="Top" Height="24"/>
+					<Label x:Name="RTIA_labal" Content="RTIA[Kohm]" HorizontalAlignment="Left" Margin="10,275,0,0" VerticalAlignment="Top" Height="24"/>
+					<Label x:Name="RINT_labal" Content="RINT[Kohm]" HorizontalAlignment="Left" Margin="10,325,0,0" VerticalAlignment="Top" Height="24"/>
 					<ScottPlot:WpfPlot x:Name="DevGraph" Margin="286,-10,30,36" />
 				</Grid>
 			</TabItem>

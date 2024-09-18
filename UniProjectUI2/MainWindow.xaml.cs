@@ -54,8 +54,8 @@ namespace UniProjectUI2
             
             //Record Variables
             Queue<Packet> recordQueue = new Queue<Packet>();
-            static int recordPacketsToRead = 0;
-            static int recTime = 0;
+            int recordPacketsToRead = 0;
+            int recTime = 0;
             Packet copyPacket = new Packet();
             static bool isRec = false;
         static int reccount = 0;
@@ -72,7 +72,6 @@ namespace UniProjectUI2
 
             vm = new DeviceViewModel(new DeviceManager());
             DataContext = vm;
-            
 
             // create  loggers and add them to the plot
             Logger1 = DevGraph.Plot.Add.DataLogger();
@@ -318,41 +317,64 @@ namespace UniProjectUI2
             // Specify the file path
             string filePath = @"C:\Users\Lidor Cohen\source\repos\UniProjectConsole\UniProjectUI2\output.csv";
 
-            // Create a new StreamWriter
-            using (StreamWriter writer = new StreamWriter(filePath))
+        private void Record(object sender, System.Timers.ElapsedEventArgs e)
             {
-                // Get the dimensions of the array
-                int rows = decodedArray.GetLength(0);
-                int columns = decodedArray.GetLength(1);
+ 
+                recordPacketsToRead = 100 * recTime;
+                copyPacket = new Packet();
+                bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                copyPacket.setData(buffer, bytesToRead);
+                recordQueue.Enqueue(copyPacket);
+                --recordPacketsToRead;
+                    
+                Thread.Sleep(10); //Fill up buffer
+                bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+                copyPacket = new Packet();
+                copyPacket.setData(buffer, bytesToRead);
+                recordQueue.Enqueue(copyPacket);
+                --recordPacketsToRead;
+                RecTime.Content = recordPacketsToRead.ToString();
 
-                // Iterate through each row
-                for (int row = 0; row < rows; row++)
-                {
-                    // Create an array to hold the row data
-                    string[] rowData = new string[columns];
-
-                    // Iterate through each column
-                    for (int col = 0; col < columns; col++)
-                    {
-                        rowData[col] = decodedArray[row, col].ToString();
-                    }
-
-                    // Join the row data with commas and write to the file
-                    writer.WriteLine(string.Join(",", rowData));
+                //now for standard reading
+                int[] data = decode(copyPacket.getData());
+                // Calculate elapsed time
+                TimeSpan elapsedTime = e.SignalTime - startTime;
+                //update Graph
+                UpdatePlotWithNewData(elapsedTime.TotalSeconds, data);
+                if(recordPacketsToRead == 0)
+                    EndRecording();
                 }
             }
-            recordQueue.Clear();
-            recordPacketsToRead = 0;
-            Record_button.Content = "Record";
-            Record_button.IsEnabled = true;
-        }
         private void StartRecord(object sender, RoutedEventArgs e)
         {
-            recordPacketsToRead = recTime * 100;
-            isRec = true;
-            Record_button.IsEnabled = false;
-        }
+                // Unsubscribe the existing event handler
+                timer.Elapsed -= ReadData;
 
+                // Subscribe the new event handler
+                timer.Elapsed += Record;
+        }
+        void EndRecording()
+        {
+            // Unsubscribe the existing event handler
+            timer.Elapsed -= Record;
+
+            // Subscribe the new event handler
+            timer.Elapsed += ReadData;
+            
+            int[] decodedArray;
+            for (int i = 0; i < recTime*100; i++)
+            {
+                decodedArray[i] = decode(recordQueue.Dequeue().getData());
+            }
+        // Specify the file path
+        string filePath = "output.csv";
+
+        // Convert the array to a CSV format string
+        string csvContent = string.Join(",", decodedArray);
+
+        // Write the CSV content to a file
+        File.WriteAllText(filePath, csvContent);
+        }
         private void StopRecording(object sender, RoutedEventArgs e)
         {
 

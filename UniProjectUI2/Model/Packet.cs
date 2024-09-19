@@ -2,7 +2,7 @@ using System.Text;
 
 namespace Application.Model
 {
-    class Packet
+    class Packet //balls
     {
         public const int PACKET_SIZE = 22;
         public const int PD_SIZE = 5;

@@ -113,8 +113,6 @@ namespace UniProjectUI2
             DevGraph.Plot.YLabel("Intensity [a.u]");
             DevGraph.Plot.Axes.Bottom.Label.OffsetY = 4;
             DevGraph.Plot.Axes.SetLimitsY(bottom: 0, top: 33000);
-            DashGraph.Plot.XLabel("Time [sec]");
-            DashGraph.Plot.YLabel("Absorption Coefficient [1/m]");
             //adding the axies
             RightAxis axis1 = (RightAxis)DevGraph.Plot.Axes.Right;
             //configuring the legend
@@ -395,38 +393,6 @@ namespace UniProjectUI2
                 RecTime.Content = "Printing to " + filePath;
             });
 
-        }
-        private void ChangeView(object sender, RoutedEventArgs e)
-        {
-            if (View_button.Content == "Change to Slide View")
-            {
-                Logger1.ViewSlide();
-                Logger2.ViewSlide();
-                Logger3.ViewSlide();
-                Logger4.ViewSlide();
-                Logger5.ViewSlide();
-                RecTime.Dispatcher.InvokeAsync(() =>
-                {
-                    Logger1.ViewSlide();
-                    Logger2.ViewSlide();
-                    Logger3.ViewSlide();
-                    Logger4.ViewSlide();
-                    Logger5.ViewSlide();
-                    View_button.Content = "Change to Full View";
-                });
-            }
-            else
-            {
-                if (View_button.Content == "Change to Full View")
-                {
-                    Logger1.ViewFull();
-                    Logger2.ViewFull();
-                    Logger3.ViewFull();
-                    Logger4.ViewFull();
-                    Logger5.ViewFull();
-                    View_button.Content = "Change to Slide View";
-                }
-            } 
         }
         int[] decode(byte[] b) //TEST
         {

@@ -38,7 +38,7 @@ namespace UniProjectUI2
         DeviceViewModel vm;
         static int packetNum = 1;
         static int bytesToRead = 22 * packetNum;
-        static int pace = 200;
+        static int pace = 1000;
         static int pace2 = 10;
         static int freq2 = (1000/pace2);
         byte[] buffer = new byte[bytesToRead];
@@ -66,7 +66,12 @@ namespace UniProjectUI2
         // Specify the path for the output file
         string filePath = "output.csv";
         string exepath = null; //PLEASE CHANGE THIS TO THE LOCATION OF YOUR EXE FILE
-        
+        Stopwatch _stopwatch;
+        private const int packetSize = 22;
+        int totalPackets;
+        int targetSize;
+        private byte[,] dataArray;
+
 
         #endregion
         #region SerialPort Definition
@@ -80,17 +85,19 @@ namespace UniProjectUI2
             vm = new DeviceViewModel(new DeviceManager());
             DataContext = vm;
 
+            _stopwatch = new Stopwatch();
+
             // create  loggers and add them to the plot
             Logger1 = DevGraph.Plot.Add.DataLogger();
             Logger2 = DevGraph.Plot.Add.DataLogger();
             Logger3 = DevGraph.Plot.Add.DataLogger();
             Logger4 = DevGraph.Plot.Add.DataLogger();
             Logger5 = DevGraph.Plot.Add.DataLogger();
-            Logger1.ViewSlide();
-            Logger2.ViewSlide();
-            Logger3.ViewSlide();
-            Logger4.ViewSlide();
-            Logger5.ViewSlide();
+            Logger1.ViewJump();
+            Logger2.ViewJump();
+            Logger3.ViewJump();
+            Logger4.ViewJump();
+            Logger5.ViewJump();
 
             InitializePlot();
             InitializeSerialPort();
@@ -186,9 +193,8 @@ namespace UniProjectUI2
                 }
                 int[] data = decode(buffer);
                 // Calculate elapsed time
-                TimeSpan elapsedTime = e.SignalTime - startTime;
                 //update Graph
-                UpdatePlotWithNewData(elapsedTime.TotalSeconds, data);
+                UpdatePlotWithNewData(0.0, data);
             }
         }
         private void InitializeSerialPort()
@@ -307,59 +313,66 @@ namespace UniProjectUI2
         }
             void Record(object sender, ElapsedEventArgs e)
             {
-
             try
             {
+                _stopwatch.Reset(); 
                 serialPort.ReadExisting(); // clear the buffer
                 copyPacket = new Packet();
+                _stopwatch.Start();
                 int bytesRead = serialPort.Read(buffer, 0, bytesToRead);
-                //Thread.Sleep(10); //Fill up buffer
+                _stopwatch.Stop();
+
             }
 
-            
             catch (Exception e1)
             {
                 Console.WriteLine(e1.Message);
             }
-            int displaynumber = -(recordPacketsToRead - recTime*freq2) / freq2;
-            RecTime.Dispatcher.InvokeAsync(() =>
-            {
-                RecTime.Content = displaynumber.ToString();
-            });
-
             copyPacket.setData(buffer, bytesToRead);
             recordQueue.Enqueue(copyPacket);
             --recordPacketsToRead;
-            //now for standard reading
-            int[] data = decode(copyPacket.getData());
-            // Calculate elapsed time
-            TimeSpan elapsedTime = e.SignalTime - startTime;
-
-                //update Graph
-            UpdatePlotWithNewData(elapsedTime.TotalSeconds, data);
+            RecTime.Dispatcher.InvokeAsync(() =>
+            {
+                RecTime.Content = _stopwatch.Elapsed.TotalMilliseconds.ToString();
+            });
             if (recordPacketsToRead == 0)
                EndRecording();
             }
         private void StartRecord(object sender, RoutedEventArgs e)
         {
-            if(recTime == 0)
-                recTime = 1; // set a hidden defualt
-            recordPacketsToRead = freq2 * recTime;
-            // Subscribe the new event handler
-            timer2.Elapsed += Record;
-            timer2.AutoReset = true; // Continuously fire the Elapsed event
-            timer2.Enabled = true; // Start the timer
+            // if(recTime == 0)
+            //     recTime = 1; // set a hidden defualt
+            // recordPacketsToRead = freq2 * recTime;
 
+            //DateTime RectimeStart = DateTime.Now;
+
+            // // Subscribe the new event handler
+            // timer2.Elapsed += Record;
+            // timer2.AutoReset = true; // Continuously fire the Elapsed event
+            //timer2.Enabled = true; // Start the timer
+            timer.Enabled = false;
+            startTime = DateTime.Now;
 
             Record_button.Content = "Record Active!";
             Record_button.IsEnabled = false;
+            totalPackets = freq2 * recTime;
+            targetSize = totalPackets * packetSize;
+            dataArray = new byte[totalPackets, packetSize]; // 60000 x 22 array
+
+        serialPort.DiscardInBuffer(); // Clear the input buffer
+            // Start a new thread to wait for the buffer to fill and then transfer data
+            Thread recordThread = new Thread(WaitForBufferFill);
+            recordThread.Start();
+
         }
         void EndRecording()
         {
-
             timer2.Enabled = false; // End the timer
+            TimeSpan elapsedRecTime = DateTime.Now - startTime;
+
             RecTime.Dispatcher.InvokeAsync(() =>
             {
+                RecTime.Content = elapsedRecTime.ToString();
                 Record_button.Content = "Record";
                 Record_button.IsEnabled = true;
             });
@@ -378,8 +391,8 @@ namespace UniProjectUI2
 
             var rows = array.GetLength(0);
             var cols = array.GetLength(1);
-
-            using (StreamWriter file = new StreamWriter("2dArrayOut.csv"))
+            filePath = System.IO.Path.GetFullPath($"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv");
+            using (StreamWriter file = new StreamWriter(filePath))
             {
                 file.AutoFlush = true;
                 for (int i = 0; i < rows; i++)
@@ -391,10 +404,6 @@ namespace UniProjectUI2
                     file.Write("\n");
                 }
             }
-            RecTime.Dispatcher.InvokeAsync(() =>
-            {
-                RecTime.Content = "Printing to " + filePath;
-            });
 
         }
         int[] decode(byte[] b) //TEST
@@ -450,7 +459,84 @@ namespace UniProjectUI2
                 MessageBox.Show($"Error starting the MATLAB app: {ex.Message}");
             }
         }
+        private void WaitForBufferFill()
+        {
+            while (true)
+            {
+                int bytesToRec = serialPort.BytesToRead;
+                int count = 0;
+                // Check if the input buffer has filled to the target size
+                if (bytesToRec >= targetSize)
+                {
+                    // Transfer data from input buffer to the 60000 x 22 array
+                    TransferDataToArray();
+                    break;
+                }
+
+                // Optional: Sleep for a short time to prevent busy waiting
+                Thread.Sleep(100); // Adjust the sleep time as needed
+                count++;
+                if(count%3 == 0)
+                    ReadData2();
+            }
+        }
+        void ReadData2()
+        {
+            try
+            {
+                int bytesRead = serialPort.Read(buffer, 0, bytesToRead);
+            }
+            catch (Exception e1)
+            {
+                Console.WriteLine(e1.Message);
+            }
+            int[] data = decode(buffer);
+            //update Graph
+            UpdatePlotWithNewData(0.0, data);
+        }
+        private void TransferDataToArray()
+        {
+            byte[] buffer = new byte[targetSize];
+            int bytesRead = serialPort.Read(buffer, 0, targetSize); // Read the entire buffer into a byte array
+
+            if (bytesRead == targetSize)
+            {
+                // Populate the 60000 x 22 array with the received data
+                for (int i = 0; i < totalPackets; i++)
+                {
+                    for (int j = 0; j < packetSize; j++)
+                    {
+                        dataArray[i, j] = buffer[i * packetSize + j];
+                    }
+                }
+            }
+            Packet[] packets = new Packet[totalPackets];
+            for (int i = 0; i < totalPackets; i++)
+            {
+                byte[] row = new byte[packetSize];
+                for (int j = 0; j < packetSize; j++)
+                {
+                    row[j] = dataArray[i, j]; // Copy the row data
+                }
+                packets[i] = new Packet(row);
+            }
+            int[,] decodedArray = new int[totalPackets, 5];
+            for (int i = 0; i < totalPackets; i++)
+            {
+                int[] decoded = decode(packets[i].getData());
+                for (int j = 0; j < 5; j++)
+                    decodedArray[i, j] = decoded[j];
+            }
+            TimeSpan elapsedRecTime = DateTime.Now - startTime;
+            RecTime.Dispatcher.InvokeAsync(() =>
+            {
+                RecTime.Content = elapsedRecTime.ToString();
+                Record_button.Content = "Record";
+                Record_button.IsEnabled = true;
+            });
+            PrintToCSV(decodedArray);
+        }
 
 
     }
-}
+    }

@@ -39,6 +39,8 @@ namespace UniProjectUI2
         static int packetNum = 1;
         static int bytesToRead = 22 * packetNum;
         static int pace = 200;
+        static int pace2 = 10;
+        static int freq2 = (1000/pace2);
         byte[] buffer = new byte[bytesToRead];
         byte[] dataToSend;
         readonly ScottPlot.Plottables.DataLogger Logger1;
@@ -64,6 +66,7 @@ namespace UniProjectUI2
         // Specify the path for the output file
         string filePath = "output.csv";
         string exepath = null; //PLEASE CHANGE THIS TO THE LOCATION OF YOUR EXE FILE
+        
 
         #endregion
         #region SerialPort Definition
@@ -318,10 +321,10 @@ namespace UniProjectUI2
             {
                 Console.WriteLine(e1.Message);
             }
-            int displaynumber = -(recordPacketsToRead - recTime*100) / 100;
+            int displaynumber = -(recordPacketsToRead - recTime*freq2) / freq2;
             RecTime.Dispatcher.InvokeAsync(() =>
             {
-                RecTime.Content = recordPacketsToRead.ToString();
+                RecTime.Content = displaynumber.ToString();
             });
 
             copyPacket.setData(buffer, bytesToRead);
@@ -341,7 +344,7 @@ namespace UniProjectUI2
         {
             if(recTime == 0)
                 recTime = 1; // set a hidden defualt
-            recordPacketsToRead = 100 * recTime;
+            recordPacketsToRead = freq2 * recTime;
             // Subscribe the new event handler
             timer2.Elapsed += Record;
             timer2.AutoReset = true; // Continuously fire the Elapsed event
@@ -354,15 +357,15 @@ namespace UniProjectUI2
         void EndRecording()
         {
 
-            timer2.Enabled = false; // Start the timer
+            timer2.Enabled = false; // End the timer
             RecTime.Dispatcher.InvokeAsync(() =>
             {
                 Record_button.Content = "Record";
                 Record_button.IsEnabled = true;
             });
 
-            int[,] decodedArray = new int[recTime * 100, 5];
-            for (int i = 0; i < recTime * 100; i++)
+            int[,] decodedArray = new int[recTime * freq2, 5];
+            for (int i = 0; i < recTime * freq2; i++)
             {
                 int[] decoded = decode(recordQueue.Dequeue().getData());
                 for (int j = 0; j < 5; j++)
@@ -409,7 +412,7 @@ namespace UniProjectUI2
                 arr[(i - 1) / 4] = Convert.ToInt32(concatenatedHex.ToString(), 16); //convert back to dec
             }
 
-            //PD Switch
+            //PD Switch due to manufacture error
             arr[2] += arr[3];
             arr[3] = arr[2] - arr[3];
             arr[2] -= arr[3];
@@ -417,11 +420,6 @@ namespace UniProjectUI2
             arr[3] += arr[4];
             arr[4] = arr[3] - arr[4];
             arr[3] -= arr[4];
-
-            /*foreach (int a in arr)
-            {
-                Console.WriteLine(a); //posts the decoded array one by one
-            }*/
             return arr;
         }
         void stopTransmit()
@@ -432,7 +430,25 @@ namespace UniProjectUI2
         }
         private void Analyze(object sender, RoutedEventArgs e)
         {
-           // Process.Start(exePath, filePath);
+             ProcessStartInfo processInfo = new ProcessStartInfo
+            {
+                FileName = exepath,
+                Arguments = filePath,  // Pass the filepath to the .exe
+                UseShellExecute = true, // We use shell execute here
+                RedirectStandardOutput = false, // We don't need to capture the output
+                CreateNoWindow = false // You can set this to true if you don't want a new window
+            };
+
+            try
+            {
+                // Start the external MATLAB process
+                Process process = Process.Start(processInfo);
+            }
+            catch (Exception ex)
+            {
+                // Handle any errors
+                MessageBox.Show($"Error starting the MATLAB app: {ex.Message}");
+            }
         }
 
 

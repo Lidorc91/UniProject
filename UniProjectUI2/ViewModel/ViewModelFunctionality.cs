@@ -15,5 +15,7 @@ namespace Application.ViewModel
 		{
            return this._manager.getLatestPacket();
 		}
+
+		
 	}
 }

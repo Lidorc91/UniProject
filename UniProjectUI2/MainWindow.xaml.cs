@@ -129,7 +129,6 @@ namespace UniProjectUI2
             DevGraph.Plot.Legend.Alignment = Alignment.UpperLeft;
             DevGraph.Plot.ScaleFactor = 2;
             DevGraph.Refresh();
-
         }
         private void UpdatePlotWithNewData(double time, int[] data)
         {

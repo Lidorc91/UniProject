@@ -11,19 +11,20 @@ namespace Application.Model
     partial class DeviceManager
     {
         //Recording Variables
-        Queue<Packet> recordQueue;
+        BlockingCollection<Packet> recordQueue;
+        private bool isRecording = false;
         private int recordPacketsToRead;
         private int recTime;
         private Packet latestPacket;
         private readonly object _lock = new object();
-        Packet copyPacket = new Packet();
         private Timer realTimeTimer;
+        private Packet realTimePacket;
 
         private setupRealTimeTimer()
         {
             realTimeTimer = new Timer(100);
             realTimeTimer.Elapsed += realtimeThread;
-            realTimeTimer.AutoReset = true;
+            realTimeTimer.AutoReset = true;            
         }
 
         private void ChangeLed()
@@ -60,22 +61,82 @@ namespace Application.Model
             return (bytesRead == 0) ? null : packet;
         }
 
-        private void realtimeThread()
+        private int[] realtimeThread()
         {
-            //Decode packet
-        }
-
-        private void recordThread()
-        {
-            //Save raw packets
+            //Case for Active Recording 
+            if(isRecording){
+                //Get Packet
+                lock (_lock){
+                  realTimePacket = latestPacket;
+                }
+                //Decode Packet
+                realTimePacket.decode();
+                return;
+            }else{
+                _connection.EmptyIncomingDataBuffer();
+                Thread.sleep(10);
+                //Get Packet
+                realTimePacket = ReceiveData(new Packet(),1);
+                //Decode packet
+                realTimePacket.decode();
+            }
         }
 
         //Record Functionality
-        public void startRecord(byte time)
+        public void record(byte time)
         {
-            recordQueue = new Queue<Packet>;
-
+            recordQueue = new ConcurrentQueue<Packet>;
+            int packetsToRead = 100*time;
+            isRecording = true;
+            Packet recordPacket = new Packet();
+            
+            //Record
+            Thread recordThread = new Thread(delegate(){
+                while(packetsToRead > 0){
+                    //Read
+                    ReceiveData(recordPacket,1);
+                    //Save to Shared Packet
+                    lock (_lock){
+                    latestPacket = recordPacket;
+                   }
+                   //Save Data
+                    recordQueue.Enqueue(new Packet(recordPacket));
+                    
+                   --packetsToRead;                    
+                }
+                
+                isRecording = false;            
+            }).start();
+            
+            //Process & Export
+            Thread exportThread = new Thread(delegate(){
+                for(int i=0; i < 100*time ; i++){                    
+                    using (StreamWriter file = new StreamWriter("2dArrayOut.csv"))
+                    {
+                        file.AutoFlush = true;
+                        for (int i = 0; i < 100*time; i++)
+                        {
+                            //Process Data
+                            int[] processedData = recordQueue.Dequeue().getDecodedData();
+                            for (int j = 0; j < Packet.PD_SIZE; j++)
+                            {
+                                //Save to CSV
+                                file.Write($"{processedData[j]},");
+                            }
+                            file.Write("\n");
+                        }
+                    }
+                }
+            }).start();
         }
-       
+
+        public void startRealTimeReading(){
+            setupRealTimeTimer();
+            realTimeTimer.Enabled = true;
+        }
+        
+        public void stopRealTimeReading(){
+            realTimeTimer.Enabled = false;
+        }       
     }
 }

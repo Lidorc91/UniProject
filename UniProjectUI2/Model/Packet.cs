@@ -6,30 +6,35 @@ namespace Application.Model
     {
         public const int PACKET_SIZE = 22;
         public const int PD_SIZE = 5;
-        private byte[] _data;
-
+        private byte[] _rawData;
+        private int[] _decodedData = new int[PD_SIZE];
 
         public Packet()
         {
-            _data = new byte[PACKET_SIZE];
+            _rawData = new byte[PACKET_SIZE];
         }
 
         public Packet(byte[] data)
         {
-            _data = data;
+            _rawData = data;
         }
 
-        public byte[] getData()
+        public byte[] getRawData()
         {
-            return _data;
+            return _rawData;
         }
 
-        public void setData(byte[] sourceData, int length)
+        public void setRawData(byte[] sourceData, int length)
         {
-            Array.Copy(sourceData, _data, length);
+            Array.Copy(sourceData, _rawData, length);
         }
 
-        public int[] Decode()
+        public int[] getDecodedData(byte[] data)
+        {
+            return decode(getRawData());
+        }
+
+        private int[] decode(byte[] _data)
         {
 
             int[] arr = new int[PD_SIZE]; // final decoded array
@@ -55,6 +60,12 @@ namespace Application.Model
             arr[3] -= arr[4];
 
             return arr;
+        }
+
+        //Discard raw data after decoding to save memory
+        public void clearRawData()
+        {
+            _rawData = null;
         }
 
     }

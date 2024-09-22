@@ -14,7 +14,17 @@ namespace Application.Model
         Queue<Packet> recordQueue;
         private int recordPacketsToRead;
         private int recTime;
+        private Packet latestPacket;
+        private readonly object _lock = new object();
         Packet copyPacket = new Packet();
+        private Timer realTimeTimer;
+
+        private setupRealTimeTimer()
+        {
+            realTimeTimer = new Timer(100);
+            realTimeTimer.Elapsed += realtimeThread;
+            realTimeTimer.AutoReset = true;
+        }
 
         private void ChangeLed()
         {
@@ -36,12 +46,36 @@ namespace Application.Model
             _connection.EmptyIncomingDataBuffer();
         }
 
-        private Packet ReadPacket()
+        //Continuous read 
+        private Packet getLatestPacket()
         {
-            byte[] buffer = new byte[Packet.PACKET_SIZE];
-            Packet packet = new Packet(buffer);
+            lock (_lock)
+            {
+
+            }
+            Packet packet = new Packet();
             int bytesRead = _connection.ReceiveData(packet, Packet.PACKET_SIZE);
+            packet.getDecodedData(); // Data processing in the model
+            packet.clearRawData();
             return (bytesRead == 0) ? null : packet;
         }
+
+        private void realtimeThread()
+        {
+            //Decode packet
+        }
+
+        private void recordThread()
+        {
+            //Save raw packets
+        }
+
+        //Record Functionality
+        public void startRecord(byte time)
+        {
+            recordQueue = new Queue<Packet>;
+
+        }
+       
     }
 }

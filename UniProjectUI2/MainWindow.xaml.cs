@@ -77,6 +77,8 @@ namespace UniProjectUI2
             vm = new DeviceViewModel(new DeviceManager());
             DataContext = vm;
 
+            vm.GetData();
+
             // create  loggers and add them to the plot
             Logger1 = DevGraph.Plot.Add.DataLogger();
             Logger2 = DevGraph.Plot.Add.DataLogger();

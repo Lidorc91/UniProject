@@ -33,8 +33,8 @@
 					<Label x:Name="Sensor_version" Content="Sensor Version" HorizontalAlignment="Left" Margin="10,75,0,0" VerticalAlignment="Top" Height="24"/>
 					<Label x:Name="Recording_time" Content="Recording Time \n [Hundereds of Samples]" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" Height="24"/>
 					<Label x:Name="Current" Content="Current[mA]" HorizontalAlignment="Left" Margin="10,25,0,0" VerticalAlignment="Top" Height="24"/>
-					<TextBox x:Name="Current_inputbox" HorizontalAlignment="Left" Margin="120,25,0,0" TextWrapping="Wrap" Text="{Binding Current}" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox" LostFocus="ChCurrent"/>
-					<TextBox x:Name="Recording_time_inputbox" HorizontalAlignment="Left" Margin="120,50,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox" LostFocus="RecordTimeChanged"/>
+					<TextBox x:Name="Current_inputbox" HorizontalAlignment="Left" Margin="120,25,0,0" TextWrapping="Wrap" Text="{Binding Current}" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox"/>
+					<TextBox x:Name="Recording_time_inputbox" HorizontalAlignment="Left" Margin="120,50,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox"/>
 					<Label x:Name="RecTime" Content="Not Recording" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Height="24"/>
 					<ComboBox x:Name="Sensor_version1" HorizontalAlignment="Left" Margin="120,75,0,0" VerticalAlignment="Top" Width="80" Height="24" SelectedIndex="0">
 						<ComboBoxItem Content="0"/>

@@ -29,7 +29,7 @@ namespace Application.Model
             Array.Copy(sourceData, _rawData, length);
         }
 
-        public int[] getDecodedData(byte[] data)
+        public int[] getDecodedData()
         {
             if(_decodedData == null){
                 decode();                                
@@ -37,7 +37,7 @@ namespace Application.Model
             return _decodedData;
         }
 
-        private void decode()
+        public void decode()
         {
             if(_decodedData != null) return;
 

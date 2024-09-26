@@ -36,7 +36,7 @@ namespace UniProjectUI2
     {
         #region Variable Declarations
         DeviceViewModel vm;
-        
+        object Lock = new object();
         readonly ScottPlot.Plottables.DataLogger Logger1;
         readonly ScottPlot.Plottables.DataLogger Logger2;
         readonly ScottPlot.Plottables.DataLogger Logger3;
@@ -49,7 +49,7 @@ namespace UniProjectUI2
             set{
                 if(_latestPacket != value){
                     _latestPacket=value;
-                    UpdatePlotWithNewData(_latestPacket)
+                    UpdatePlotWithNewData(_latestPacket);
                 }
             }
         }
@@ -58,9 +58,10 @@ namespace UniProjectUI2
        
         public MainWindow()
         {
-            InitializeComponent();
             vm = new DeviceViewModel(new DeviceManager());
             DataContext = vm;
+
+            InitializeComponent();
 
             // create  loggers and add them to the plot
             Logger1 = DevGraph.Plot.Add.DataLogger();
@@ -75,7 +76,6 @@ namespace UniProjectUI2
             Logger5.ViewSlide();
 
             InitializePlot();
-            InitializeSerialPort();
         }
         private void CurrentValidationTextBox(object sender, TextCompositionEventArgs e) //this method validates inputs into the current box
         {
@@ -132,175 +132,10 @@ namespace UniProjectUI2
             Play_button.Content = vm.StartReading ? "Halt" : "Play"; 
             vm.StartReading = !vm.StartReading;
         }
-        private void ReadData(object sender, ElapsedEventArgs e) //DEL
+        
+        private void StartRecord(object sender, RoutedEventArgs e)
         {
-            lock (Lock)
-            {
-                try
-                {
-                    serialPort.ReadExisting(); //Read(Clear) old data in buffer
-                    Thread.Sleep(10); //Fill up buffer
-                    int bytesRead = serialPort.Read(buffer, 0, bytesToRead);
-                }
-                catch (Exception e1)
-                {
-                    Console.WriteLine(e1.Message);
-                }
-                int[] data = decode(buffer);
-                // Calculate elapsed time
-                TimeSpan elapsedTime = e.SignalTime - startTime;
-                //update Graph
-                UpdatePlotWithNewData(elapsedTime.TotalSeconds, data);
-            }
-        }
-        private void InitializeSerialPort() // DEL
-        {
-            serialPort = new SerialPort();
-            serialPort.PortName = "COM3";
-            serialPort.BaudRate = 115200;
-            serialPort.DataBits = 8;
-            serialPort.Parity = Parity.None;
-            serialPort.StopBits = StopBits.One;
-            serialPort.Handshake = Handshake.None;
-            try
-            {
-                serialPort.Open();
-                if (serialPort.IsOpen)
-                {
-                    Console.WriteLine("Connected");
-                }
-            }
-            catch (Exception e) { Console.WriteLine(e.Message); }
-        }
-        void startTransmit() // DEL
-        {
-            byte[] dataToSend = new byte[] { 0x10, 1 };
-            sendCommand(dataToSend);
-            if (Green_LED.IsChecked == true)
-            {
-                byte led = 0;
-                dataToSend = new byte[] { 0x20, led };
-                sendCommand(dataToSend);
-
-            }
-            if (Red_LED.IsChecked == true)
-            {
-                byte led = 1;
-                dataToSend = new byte[] { 0x20, led };
-                sendCommand(dataToSend);
-            }
-        }
-        private void LEDColorChange(object sender, RoutedEventArgs e) //DEL
-        {
-            RadioButton color = (sender as RadioButton);
-            if (color.Content == Green_LED.Content)
-            {
-                byte led = 0;
-                dataToSend = new byte[] { 0x20, led };
-                sendCommand(dataToSend);
-            }
-            if (color.Content == Red_LED.Content)
-            {
-                byte led = 1;
-                dataToSend = new byte[] { 0x20, led };
-                sendCommand(dataToSend);
-            }
-        }
-        void sendCommand(byte[] dataToSend) // DEL
-        {
-            try
-            {
-                serialPort.Write(dataToSend, 0, dataToSend.Length);
-                Thread.Sleep(250);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
-        }
-        private void RTIAChange(object sender, SelectionChangedEventArgs e)
-        {
-
-            if (!this.IsLoaded) //Makes sure that ui has loaded to stop premature running
-            {
-                return;
-            }
-            ComboBox RTIABox = sender as ComboBox;
-            double RTIA = double.Parse(RTIABox.SelectedValue.ToString());
-            for (int i = 0; i < 5; i++)
-            {
-                sendCommand(new byte[] { (byte)(i + 8), (byte)RTIA });
-            }
-        }
-        private void RINTChange(object sender, SelectionChangedEventArgs e)
-        {
-            if (!this.IsLoaded) //Makes sure that ui has loaded to stop premature running
-            {
-                return;
-            }
-            ComboBox RINTBox = sender as ComboBox;
-            int RINT = int.Parse(RINTBox.SelectedValue.ToString());
-            for (int i = 0; i < 5; i++)
-            {
-                sendCommand(new byte[] { (byte)(i + 11), (byte)RINT });
-            }
-        }
-        private void ChCurrent(object sender, RoutedEventArgs e2) // DEL
-        {
-
-            if (!this.IsLoaded || !serialPort.IsOpen) //Makes sure that ui has loaded to stop premature running
-            {
-                return;
-            }
-            int value = int.Parse(Current_inputbox.Text);
-            int calcValue = (int)(Math.Round((value * 126) / 198.5));
-            for (int i = 0; i < 5; i++)
-            {
-                sendCommand(new byte[] { (byte)(i), (byte)calcValue });
-            }
-            serialPort.DiscardInBuffer();
-        }
-        private void RecordTimeChanged(object sender, RoutedEventArgs e)
-        {
-
-            recTime = int.Parse(Recording_time_inputbox.Text);
-
-        }
-        void Record(object sender, ElapsedEventArgs e) //DEL
-        {
-            try
-            {
-                serialPort.ReadExisting(); // clear the buffer
-                copyPacket = new Packet();
-                int bytesRead = serialPort.Read(buffer, 0, bytesToRead);
-                //Thread.Sleep(10); //Fill up buffer
-            }            
-            catch (Exception e1)
-            {
-                Console.WriteLine(e1.Message);
-            }
-            int displaynumber = -(recordPacketsToRead - recTime*100) / 100;
-            RecTime.Dispatcher.InvokeAsync(() =>
-            {
-                RecTime.Content = recordPacketsToRead.ToString();
-            });
-
-            copyPacket.setData(buffer, bytesToRead);
-            recordQueue.Enqueue(copyPacket);
-            --recordPacketsToRead;
-            //now for standard reading
-            int[] data = decode(copyPacket.getData());
-            // Calculate elapsed time
-            TimeSpan elapsedTime = e.SignalTime - startTime;
-
-                //update Graph
-            UpdatePlotWithNewData(elapsedTime.TotalSeconds, data);
-            if (recordPacketsToRead == 0)
-                EndRecording();
-        }
-        private void StartRecord(object sender, RoutedEventArgs e) // DEL
-        {
-            int recTime = int.Parse(Recording_time_inputbox.Text);
+            byte recTime = byte.Parse(Recording_time_inputbox.Text);
             if(recTime <= 0){
 
                 MessageBox.Show("Input values greater than 0", "Error", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -308,49 +143,15 @@ namespace UniProjectUI2
             }
             vm.StartRecording(recTime);
         }
-        void EndRecording() //DEL
+        
+        private void LEDChange(object sender, RoutedEventArgs e)
         {
-
-            timer2.Enabled = false; // Start the timer
-            RecTime.Dispatcher.InvokeAsync(() =>
-            {
-                Record_button.Content = "Record";
-                Record_button.IsEnabled = true;
-            });
-
-            int[,] decodedArray = new int[recTime * 100, 5];
-            for (int i = 0; i < recTime * 100; i++)
-            {
-                int[] decoded = decode(recordQueue.Dequeue().getData());
-                for (int j = 0; j < 5; j++)
-                    decodedArray[i,j] = decoded[j];
+            var radioButton = sender as RadioButton;
+            if (radioButton != null) {
+                vm.SelectedLED = radioButton.Content.ToString();
             }
-            PrintToCSV(decodedArray);
         }
-        void PrintToCSV(int[,] array) // DEL
-        {
-
-            var rows = array.GetLength(0);
-            var cols = array.GetLength(1);
-
-            using (StreamWriter file = new StreamWriter("2dArrayOut.csv"))
-            {
-                file.AutoFlush = true;
-                for (int i = 0; i < rows; i++)
-                {
-                    for (int j = 0; j < cols; j++)
-                    {
-                        file.Write($"{array[i, j]},");
-                    }
-                    file.Write("\n");
-                }
-            }
-            RecTime.Dispatcher.InvokeAsync(() =>
-            {
-                RecTime.Content = "Printing to " + filePath;
-            });
-
-        }
+        
         private void ChangeView(object sender, RoutedEventArgs e)
         {
             if (View_button.Content == "Change to Slide View")
@@ -383,47 +184,21 @@ namespace UniProjectUI2
                 }
             } 
         }
-        int[] decode(byte[] b) //TEST //DEL
+
+        private void RINTChange(object sender, RoutedEventArgs e)
         {
-            int[] arr = new int[5 * packetNum]; // here is the decoded array
-            string[] hexString = new string[b.Length];
-            for (int i = 1; i < arr.Length * 4; i += 4) //run 5 times for the 5 PDs
-            {
-                string a1 = b[i].ToString("X").PadLeft(2, '0'); //this is the first number
-                string a2 = b[i + 1].ToString("X").PadLeft(2, '0'); //this is the 2nd number
-                                                                    //numbers 3 & 4 are always 0 so they are ignored
-                StringBuilder concatenatedHex = new StringBuilder();
-                concatenatedHex.Append(a2);
-                concatenatedHex.Append(a1); //this mean thats the 2nd number is the first element of the decoded number
-                arr[(i - 1) / 4] = Convert.ToInt32(concatenatedHex.ToString(), 16); //convert back to dec
-            }
-
-            //PD Switch
-            arr[2] += arr[3];
-            arr[3] = arr[2] - arr[3];
-            arr[2] -= arr[3];
-
-            arr[3] += arr[4];
-            arr[4] = arr[3] - arr[4];
-            arr[3] -= arr[4];
-
-            /*foreach (int a in arr)
-            {
-                Console.WriteLine(a); //posts the decoded array one by one
-            }*/
-            return arr;
+            
         }
-        void stopTransmit()
+
+        private void RTIAChange(object sender, RoutedEventArgs e)
         {
-            byte[] dataToSend = new byte[] { 0x10, 0 };
-            sendCommand(dataToSend);
 
         }
+
         private void Analyze(object sender, RoutedEventArgs e)
         {
-           // Process.Start(exePath, filePath);
-        }
 
+        }
 
     }
 }

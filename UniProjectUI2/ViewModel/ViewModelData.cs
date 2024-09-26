@@ -40,7 +40,8 @@ namespace Application.ViewModel
         private byte _current;
 
         private bool _startReading;
-        public bool StartReading{}{
+        public bool StartReading
+        {
             get{
                 return _startReading;
             }
@@ -88,7 +89,7 @@ namespace Application.ViewModel
             }
         }
         //Generic Event-Caller - for LED, Current and Resistance
-        public string Current
+        public byte Current
         {
             get
             {
@@ -99,14 +100,13 @@ namespace Application.ViewModel
                 if(_current != value)
                 {                    
                     _current = value;
-                    int value = int.Parse(Current_inputbox.Text);
-                    _manager.ChangeCurrent(int.Parse(_current));
+                    _manager.ChangeCurrent(_current);
                 }                
             }
         }    
 
-        public void StartRecording(int time){
-            _manager.StartRecord(time);            
+        public void StartRecording(byte time){
+            _manager.record(time);            
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

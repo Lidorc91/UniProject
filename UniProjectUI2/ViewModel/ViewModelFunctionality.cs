@@ -12,12 +12,5 @@ namespace Application.ViewModel
 	partial class DeviceViewModel
 	{
 		
-
-		public Packet GetData()
-		{
-           return this._manager.getLatestPacket();
-		}
-
-		
 	}
 }

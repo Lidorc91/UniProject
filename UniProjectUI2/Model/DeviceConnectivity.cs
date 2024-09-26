@@ -15,7 +15,7 @@ namespace Application.Model
         public DeviceManager()
         {
             _connection = GetInstance();
-            _connection.setupTimers();
+            setupTimers();
         }
 
         //Initialize Relevant Connectivity (SerialPort / Bluetooth / etc.)
@@ -52,7 +52,7 @@ namespace Application.Model
             try
             {
                 Packet packet = new Packet(dataToSend);
-                _connection.SendData(packet);
+                _connection.SendCommand(packet);
                 Thread.Sleep(250);
                 Console.WriteLine("Operation Successful");
             }

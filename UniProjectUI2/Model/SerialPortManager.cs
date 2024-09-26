@@ -48,11 +48,11 @@ namespace Application.Model
 
         public void StartDataTransfer(){
             Packet command = new Packet(new byte[] {0x10, 1});
-            SendCommand(command)
+            SendCommand(command);
         }
         public void StopDataTransfer(){
             Packet command = new Packet(new byte[] {0x10, 0});
-            SendCommand(command)
+            SendCommand(command);
         }
 
         public void DisposeConnection()
@@ -68,14 +68,14 @@ namespace Application.Model
         /*  Data Management Methods  */
         public void SendCommand(Packet buffer)
         {
-            _serialPort.Write(buffer.getData(), 0, Packet.PACKET_SIZE);
+            _serialPort.Write(buffer.getRawData(), 0, Packet.PACKET_SIZE);
         }
 
         
 
         public int ReceiveData(Packet buffer, int PacketsToRead)
         {
-            return _serialPort.Read(buffer.getData(), 0, PacketsToRead * Packet.PACKET_SIZE);
+            return _serialPort.Read(buffer.getRawData(), 0, PacketsToRead * Packet.PACKET_SIZE);
         }
 
         public void EmptyIncomingDataBuffer()

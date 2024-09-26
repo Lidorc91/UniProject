@@ -71,6 +71,7 @@ namespace UniProjectUI2
         int totalPackets;
         int targetSize;
         private byte[,] dataArray;
+        string csvname;
 
 
         #endregion
@@ -395,7 +396,7 @@ namespace UniProjectUI2
 
             var rows = array.GetLength(0);
             var cols = array.GetLength(1);
-            string csvname = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv";
+            csvname = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv";
             filePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), csvname);
             using (StreamWriter file = new StreamWriter(filePath))
             {
@@ -450,7 +451,9 @@ namespace UniProjectUI2
         }
         private void Analyze(object sender, RoutedEventArgs e)
         {
-             ProcessStartInfo processInfo = new ProcessStartInfo
+            //exepath = "PPG_analyzer.exe";
+            exepath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "PPG_analyzer.exe");
+            ProcessStartInfo processInfo = new ProcessStartInfo
             {
                 FileName = exepath,
                 Arguments = filePath,  // Pass the filepath to the .exe
@@ -467,7 +470,7 @@ namespace UniProjectUI2
             catch (Exception ex)
             {
                 // Handle any errors
-                MessageBox.Show($"Error starting the MATLAB app: {ex.Message}");
+                MessageBox.Show($"Error starting the MATLAB app: {ex.Message}\n{ex.StackTrace}");
             }
         }
         private void WaitForBufferFill()

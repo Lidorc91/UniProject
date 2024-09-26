@@ -15,7 +15,7 @@ namespace Application.Model
         public DeviceManager()
         {
             _connection = GetInstance();
-            _connection.setupRealTimeTimer();
+            _connection.setupTimers();
         }
 
         //Initialize Relevant Connectivity (SerialPort / Bluetooth / etc.)
@@ -32,8 +32,6 @@ namespace Application.Model
                 this.PropertyChanged(this, new PropertyChangedEventArgs(propName));
         }
 
-
-       
         public void Connect(String port)
         {
             _connection.Connect(port);
@@ -63,12 +61,12 @@ namespace Application.Model
                 Console.WriteLine(e.Message);
             }
         }
-        void StartDataTransmission()
+        private void StartDataTransmission()
         {
             byte[] dataToSend = new byte[] { 0x10, 1 };
             sendCommand(dataToSend);
         }
-        void StopDataTransmission()
+        private void StopDataTransmission()
         {
             byte[] dataToSend = new byte[] { 0x10, 0 };
             sendCommand(dataToSend);

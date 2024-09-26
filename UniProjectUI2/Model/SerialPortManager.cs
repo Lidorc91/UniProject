@@ -46,7 +46,16 @@ namespace Application.Model
             }
         }
 
-        public void Dispose()
+        public void StartDataTransfer(){
+            Packet command = new Packet(new byte[] {0x10, 1});
+            SendCommand(command)
+        }
+        public void StopDataTransfer(){
+            Packet command = new Packet(new byte[] {0x10, 0});
+            SendCommand(command)
+        }
+
+        public void DisposeConnection()
         {
             if (_serialPort != null)
             {
@@ -54,11 +63,15 @@ namespace Application.Model
             }
         }
 
+    
+
         /*  Data Management Methods  */
-        public void SendData(Packet buffer)
+        public void SendCommand(Packet buffer)
         {
             _serialPort.Write(buffer.getData(), 0, Packet.PACKET_SIZE);
         }
+
+        
 
         public int ReceiveData(Packet buffer, int PacketsToRead)
         {

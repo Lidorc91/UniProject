@@ -36,45 +36,31 @@ namespace UniProjectUI2
     {
         #region Variable Declarations
         DeviceViewModel vm;
-        static int packetNum = 1;
-        static int bytesToRead = 22 * packetNum;
-        static int pace = 200;
-        byte[] buffer = new byte[bytesToRead];
-        byte[] dataToSend;
+        
         readonly ScottPlot.Plottables.DataLogger Logger1;
         readonly ScottPlot.Plottables.DataLogger Logger2;
         readonly ScottPlot.Plottables.DataLogger Logger3;
         readonly ScottPlot.Plottables.DataLogger Logger4;
         readonly ScottPlot.Plottables.DataLogger Logger5;
-        System.Timers.Timer timer = new System.Timers.Timer(pace);
-        System.Timers.Timer timer2 = new System.Timers.Timer(pace);
-        private double[] times;
-        private double[] values1;
-        private double[] values2;
-        private DateTime startTime;
-        private static int data;
-        private object Lock = new object();
-        private object Lock2 = new object();
-
-        //Record Variables
-        Queue<Packet> recordQueue = new Queue<Packet>();
-        int recordPacketsToRead = 0;
-        int recTime = 0;
-        Packet copyPacket = new Packet();
-        // Specify the path for the output file
-        string filePath = "output.csv";
-        string exepath = null; //PLEASE CHANGE THIS TO THE LOCATION OF YOUR EXE FILE
+        
+        private int[] _latestPacket;
+        public int[] VM_realTimePacket{
+            get => _latestPacket;
+            set{
+                if(_latestPacket != value){
+                    _latestPacket=value;
+                    UpdatePlotWithNewData(_latestPacket)
+                }
+            }
+        }
 
         #endregion
-        #region SerialPort Definition
-        static private SerialPort serialPort;
-        #endregion
+       
         public MainWindow()
         {
             InitializeComponent();
             vm = new DeviceViewModel(new DeviceManager());
             DataContext = vm;
-            serialPort = new SerialPort();
 
             // create  loggers and add them to the plot
             Logger1 = DevGraph.Plot.Add.DataLogger();
@@ -126,7 +112,7 @@ namespace UniProjectUI2
             DevGraph.Plot.ScaleFactor = 2;
             DevGraph.Refresh();
         }
-        private void UpdatePlotWithNewData(double time, int[] data)
+        private void UpdatePlotWithNewData(int[] data)
         {
             lock (Lock)
             {
@@ -143,30 +129,10 @@ namespace UniProjectUI2
         }
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Play_button.Content == "Halt")
-            {
-                stopTransmit();
-                timer.Enabled = false;
-                Play_button.Content = "Play";
-                return;
-            }
-
-            //This should only while the button says "play"
-            startTransmit();
-            timer.Elapsed += ReadData;
-            timer.AutoReset = true; // Continuously fire the Elapsed event
-            timer.Enabled = true; // Start the timer
-
-            // Record the start time
-            startTime = DateTime.Now;
-
-            // Turn the play button into a Stop buttion
-            RecTime.Dispatcher.InvokeAsync(() =>
-            {
-                Play_button.Content = "Halt";
-            });
+            Play_button.Content = vm.StartReading ? "Halt" : "Play"; 
+            vm.StartReading = !vm.StartReading;
         }
-        private void ReadData(object sender, ElapsedEventArgs e)
+        private void ReadData(object sender, ElapsedEventArgs e) //DEL
         {
             lock (Lock)
             {
@@ -187,7 +153,7 @@ namespace UniProjectUI2
                 UpdatePlotWithNewData(elapsedTime.TotalSeconds, data);
             }
         }
-        private void InitializeSerialPort()
+        private void InitializeSerialPort() // DEL
         {
             serialPort = new SerialPort();
             serialPort.PortName = "COM3";
@@ -206,7 +172,7 @@ namespace UniProjectUI2
             }
             catch (Exception e) { Console.WriteLine(e.Message); }
         }
-        void startTransmit()
+        void startTransmit() // DEL
         {
             byte[] dataToSend = new byte[] { 0x10, 1 };
             sendCommand(dataToSend);
@@ -224,7 +190,7 @@ namespace UniProjectUI2
                 sendCommand(dataToSend);
             }
         }
-        private void LEDColorChange(object sender, RoutedEventArgs e)
+        private void LEDColorChange(object sender, RoutedEventArgs e) //DEL
         {
             RadioButton color = (sender as RadioButton);
             if (color.Content == Green_LED.Content)
@@ -240,7 +206,7 @@ namespace UniProjectUI2
                 sendCommand(dataToSend);
             }
         }
-        void sendCommand(byte[] dataToSend)
+        void sendCommand(byte[] dataToSend) // DEL
         {
             try
             {
@@ -279,7 +245,7 @@ namespace UniProjectUI2
                 sendCommand(new byte[] { (byte)(i + 11), (byte)RINT });
             }
         }
-        private void ChCurrent(object sender, RoutedEventArgs e2)
+        private void ChCurrent(object sender, RoutedEventArgs e2) // DEL
         {
 
             if (!this.IsLoaded || !serialPort.IsOpen) //Makes sure that ui has loaded to stop premature running
@@ -300,18 +266,15 @@ namespace UniProjectUI2
             recTime = int.Parse(Recording_time_inputbox.Text);
 
         }
-            void Record(object sender, ElapsedEventArgs e)
-            {
-
+        void Record(object sender, ElapsedEventArgs e) //DEL
+        {
             try
             {
                 serialPort.ReadExisting(); // clear the buffer
                 copyPacket = new Packet();
                 int bytesRead = serialPort.Read(buffer, 0, bytesToRead);
                 //Thread.Sleep(10); //Fill up buffer
-            }
-
-            
+            }            
             catch (Exception e1)
             {
                 Console.WriteLine(e1.Message);
@@ -333,23 +296,19 @@ namespace UniProjectUI2
                 //update Graph
             UpdatePlotWithNewData(elapsedTime.TotalSeconds, data);
             if (recordPacketsToRead == 0)
-               EndRecording();
-            }
-        private void StartRecord(object sender, RoutedEventArgs e)
-        {
-            if(recTime == 0)
-                recTime = 1; // set a hidden defualt
-            recordPacketsToRead = 100 * recTime;
-            // Subscribe the new event handler
-            timer2.Elapsed += Record;
-            timer2.AutoReset = true; // Continuously fire the Elapsed event
-            timer2.Enabled = true; // Start the timer
-
-
-            Record_button.Content = "Record Active!";
-            Record_button.IsEnabled = false;
+                EndRecording();
         }
-        void EndRecording()
+        private void StartRecord(object sender, RoutedEventArgs e) // DEL
+        {
+            int recTime = int.Parse(Recording_time_inputbox.Text);
+            if(recTime <= 0){
+
+                MessageBox.Show("Input values greater than 0", "Error", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            vm.StartRecording(recTime);
+        }
+        void EndRecording() //DEL
         {
 
             timer2.Enabled = false; // Start the timer
@@ -368,7 +327,7 @@ namespace UniProjectUI2
             }
             PrintToCSV(decodedArray);
         }
-        void PrintToCSV(int[,] array)
+        void PrintToCSV(int[,] array) // DEL
         {
 
             var rows = array.GetLength(0);
@@ -424,7 +383,7 @@ namespace UniProjectUI2
                 }
             } 
         }
-        int[] decode(byte[] b) //TEST
+        int[] decode(byte[] b) //TEST //DEL
         {
             int[] arr = new int[5 * packetNum]; // here is the decoded array
             string[] hexString = new string[b.Length];

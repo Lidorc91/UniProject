@@ -7,9 +7,11 @@ namespace Application.Model
 		void Connect(string portName);
         void Disconnect(); //Disconnects from port
         void Initiliaze(); //Opens a Connection
-        void Dispose(); //Closes Connection
-        void SendData(Packet data);
-        int ReceiveData(Packet buffer, int PacketsToRead);
+        void DisposeConnection(); //Closes Connection
+        void StartDataTransfer();
+        void StopDataTransfer();
+        void SendCommand(Packet data); //Sends Command to the device
+        int ReceiveData(Packet buffer, int PacketsToRead); //Recevies number of bytes read
         void EmptyIncomingDataBuffer();
         bool IsConnected();
         static abstract IConnectionManager GetInstance();

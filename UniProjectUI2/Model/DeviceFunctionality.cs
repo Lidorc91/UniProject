@@ -11,20 +11,34 @@ namespace Application.Model
 {
     partial class DeviceManager
     {
+        //General Device Variable
+        private bool activeDataTransfer = false;
+
         //Recording Variables
-        Queue<Packet> recordQueue = new BlockingCollection<Packet>();
         private volatile bool isRecording = false;
-        private Packet latestPacket;
+        Queue<Packet> recordQueue = new BlockingCollection<Packet>();
         private readonly object _lock = new object();
-        private Timer realTimeTimer;
+        private volatile int recordPacketsToRead;
+        private Packet latestPacket;
+
+        //Real-Time Variables
+        private volatile bool isRTReading = false;
         private Packet _realTimePacket;
         public Packet realTimePacket => _realTimePacket;
 
-        private setupRealTimeTimer()
+        //Timers Variables
+        private Timer realTimeTimer;
+        private Timer recordTimer;
+
+        private setupTimers()
         {
             realTimeTimer = new Timer(100);
             realTimeTimer.Elapsed += realtimeThread;
-            realTimeTimer.AutoReset = true;            
+            realTimeTimer.AutoReset = true;
+
+            recordTimer = new Timer(100);
+            realTimeTimer.Elapsed += recordThread;
+            realTimeTimer.AutoReset = true;          
         }
 
         public void ChangeLed(string color)
@@ -41,10 +55,8 @@ namespace Application.Model
                     break;
             }
         }
-        public void ChangeCurrent()
+        public void ChangeCurrent(int value)
         {
-            Console.WriteLine("Pick a value between 0 and 200:");
-            int value = int.Parse(Console.ReadLine());
             int calcValue = (int)(Math.Round((value * 126) / 198.5));
             for (int i = 0; i < 5; i++)
             {
@@ -53,27 +65,14 @@ namespace Application.Model
             //_connection.EmptyIncomingDataBuffer();
         }
 
-        //Continuous read 
-        private Packet getLatestPacket()
-        {
-            lock (_lock)
-            {
-
-            }
-            Packet packet = new Packet();
-            int bytesRead = _connection.ReceiveData(packet, Packet.PACKET_SIZE);
-            packet.getDecodedData(); // Data processing in the model
-            packet.clearRawData();
-            return (bytesRead == 0) ? null : packet;
-        }
-
         private void realtimeThread()
         {
+            Packet TempPacket;
             //Case 1 - Active Recording 
             if(isRecording){
                 //Get Packet from record thread
                 lock (_lock){
-                  realTimePacket = latestPacket;
+                  _realTimePacket = new Packet(latestPacket);
                 }
             //Case 2 - Real Time Reading ONLY
             }
@@ -81,23 +80,17 @@ namespace Application.Model
                 _connection.EmptyIncomingDataBuffer();
                 Thread.sleep(10);
                 //Get Packet from connection manager
-                realTimePacket = ReceiveData(new Packet(),1);                
+                _realTimePacket = ReceiveData(new Packet(),1);                
             }
             //Decode packet
-            realTimePacket.decode();
+            _realTimePacket.decode();
             NotifyPropertyChanged("realTimePacket");
         }
 
-        //Record Functionality
-        public void record(byte time)
+        private void recordThread()
         {
-            int packetsToRead = 100*time;
-            isRecording = true;
             Packet recordPacket = new Packet();
-            
-            //Record
-            Thread recordThread = new Thread(delegate(){
-                while(packetsToRead > 0){
+            if(recordPacketsToRead > 0){
                     //Read
                     ReceiveData(recordPacket,1);
                     //Save to Shared Packet
@@ -108,15 +101,27 @@ namespace Application.Model
                     recordQueue.Add(new Packet(recordPacket));
                    //Decrement record counter
                    --packetsToRead;                    
-                }
-                
-                isRecording = false;            
-            }).start();
+                }else{
+                    isRecording = false;
+                    recordTimer.Enabled = false;
+                    if(!isRTReading) StopDataTransfer();
+                }                
+        }
+
+
+        //Record Functionality
+        public void record(byte time)
+        {
+            if(!activeDataTransfer) StartDataTransfer();
+            recordPacketsToRead = 100*time;
+            isRecording = true;
+            recordTimer.Enabled = true;
             
             //Process & Export
             Thread exportThread = new Thread(delegate(){
+                filePath = System.IO.Path.GetFullPath($"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv")
                 for(int i=0; i < 100*time ; i++){                    
-                    using (StreamWriter file = new StreamWriter("2dArrayOut.csv"))
+                    using (StreamWriter file = new StreamWriter(filePath))
                     {
                         file.AutoFlush = true;
                         for (int i = 0; i < 100*time; i++)
@@ -136,11 +141,16 @@ namespace Application.Model
         }
 
         public void startRealTimeReading(){
+            isRTReading = true;
+            if(!activeDataTransfer) StartDataTransfer();
             realTimeTimer.Enabled = true;
+
         }
         
         public void stopRealTimeReading(){
             realTimeTimer.Enabled = false;
+            if(!isRecording) StopDataTransfer();
+            isRTReading = false;
         }       
     }
 }

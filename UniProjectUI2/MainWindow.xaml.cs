@@ -134,6 +134,7 @@ namespace UniProjectUI2
             DevGraph.Plot.ShowLegend();
             DevGraph.Plot.Legend.Alignment = Alignment.UpperLeft;
             DevGraph.Plot.ScaleFactor = 2;
+            DevGraph.Plot.Axes.SetLimits(-5, 100, -5, 35000);
             DevGraph.Refresh();
 
         }
@@ -175,6 +176,7 @@ namespace UniProjectUI2
             RecTime.Dispatcher.InvokeAsync(() =>
             {
                 Play_button.Content = "Halt";
+                DevGraph.Plot.Axes.SetLimits(-5, 100, -5, 35000);
             });
         }
         private void ReadData(object sender, ElapsedEventArgs e)
@@ -311,7 +313,7 @@ namespace UniProjectUI2
             recTime = int.Parse(Recording_time_inputbox.Text);
 
         }
-            void Record(object sender, ElapsedEventArgs e)
+        void Record(object sender, ElapsedEventArgs e)
             {
             try
             {
@@ -350,7 +352,9 @@ namespace UniProjectUI2
             // timer2.Elapsed += Record;
             // timer2.AutoReset = true; // Continuously fire the Elapsed event
             //timer2.Enabled = true; // Start the timer
-            timer.Enabled = false;
+            //timer.Enabled = false;
+            timer.Elapsed -= ReadData;
+            timer.Elapsed += ReadData2;
             startTime = DateTime.Now;
 
             Record_button.Content = "Record Active!";
@@ -359,7 +363,7 @@ namespace UniProjectUI2
             targetSize = totalPackets * packetSize;
             dataArray = new byte[totalPackets, packetSize]; // 60000 x 22 array
 
-        serialPort.DiscardInBuffer(); // Clear the input buffer
+            serialPort.DiscardInBuffer(); // Clear the input buffer
             // Start a new thread to wait for the buffer to fill and then transfer data
             Thread recordThread = new Thread(WaitForBufferFill);
             recordThread.Start();
@@ -391,7 +395,8 @@ namespace UniProjectUI2
 
             var rows = array.GetLength(0);
             var cols = array.GetLength(1);
-            filePath = System.IO.Path.GetFullPath($"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv");
+            string csvname = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv";
+            filePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), csvname);
             using (StreamWriter file = new StreamWriter(filePath))
             {
                 file.AutoFlush = true;
@@ -403,6 +408,12 @@ namespace UniProjectUI2
                     }
                     file.Write("\n");
                 }
+            }
+            //update Most_Recent_Output.txt
+            string outputFilePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Most_Recent_Output.txt");
+            using (StreamWriter outputFile = new StreamWriter(outputFilePath, false)) // 'true' for append mode
+            {
+                outputFile.WriteLine(csvname); // Write the full path of the CSV file
             }
 
         }
@@ -474,13 +485,10 @@ namespace UniProjectUI2
                 }
 
                 // Optional: Sleep for a short time to prevent busy waiting
-                Thread.Sleep(100); // Adjust the sleep time as needed
-                count++;
-                if(count%3 == 0)
-                    ReadData2();
+                Thread.Sleep(10); // Adjust the sleep time as needed
             }
         }
-        void ReadData2()
+        void ReadData2(object sender, ElapsedEventArgs e)
         {
             try
             {
@@ -491,6 +499,7 @@ namespace UniProjectUI2
                 Console.WriteLine(e1.Message);
             }
             int[] data = decode(buffer);
+            // Calculate elapsed time
             //update Graph
             UpdatePlotWithNewData(0.0, data);
         }
@@ -534,6 +543,8 @@ namespace UniProjectUI2
                 Record_button.Content = "Record";
                 Record_button.IsEnabled = true;
             });
+            timer.Elapsed -= ReadData2;
+            timer.Elapsed += ReadData;
             PrintToCSV(decodedArray);
         }
 

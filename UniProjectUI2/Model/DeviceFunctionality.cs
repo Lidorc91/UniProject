@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Automation;
 
 
 namespace Application.Model
@@ -11,14 +12,13 @@ namespace Application.Model
     partial class DeviceManager
     {
         //Recording Variables
-        BlockingCollection<Packet> recordQueue;
-        private bool isRecording = false;
-        private int recordPacketsToRead;
-        private int recTime;
+        Queue<Packet> recordQueue = new BlockingCollection<Packet>();
+        private volatile bool isRecording = false;
         private Packet latestPacket;
         private readonly object _lock = new object();
         private Timer realTimeTimer;
-        private Packet realTimePacket;
+        private Packet _realTimePacket;
+        public Packet realTimePacket => _realTimePacket;
 
         private setupRealTimeTimer()
         {
@@ -27,15 +27,21 @@ namespace Application.Model
             realTimeTimer.AutoReset = true;            
         }
 
-        private void ChangeLed()
+        public void ChangeLed(string color)
         {
-            byte led = 1;
-            Console.WriteLine("Enter LED Color Number: (0 - Green , 1 - Red)");
-            led = byte.Parse(Console.ReadLine());
-            byte[] dataToSend = new byte[] { 0x20, led };
-            sendCommand(dataToSend);
+            switch (color)
+            {
+                case "Green":
+                    sendCommand(new byte[] { 0x20, 0 });
+                    break;
+                case "Red":
+                    sendCommand(new byte[] { 0x20, 1 });
+                    break;
+                default:
+                    break;
+            }
         }
-        private void ChangeCurrent()
+        public void ChangeCurrent()
         {
             Console.WriteLine("Pick a value between 0 and 200:");
             int value = int.Parse(Console.ReadLine());
@@ -44,7 +50,7 @@ namespace Application.Model
             {
                 sendCommand(new byte[] { (byte)(i), (byte)calcValue });
             }
-            _connection.EmptyIncomingDataBuffer();
+            //_connection.EmptyIncomingDataBuffer();
         }
 
         //Continuous read 
@@ -61,31 +67,30 @@ namespace Application.Model
             return (bytesRead == 0) ? null : packet;
         }
 
-        private int[] realtimeThread()
+        private void realtimeThread()
         {
-            //Case for Active Recording 
+            //Case 1 - Active Recording 
             if(isRecording){
-                //Get Packet
+                //Get Packet from record thread
                 lock (_lock){
                   realTimePacket = latestPacket;
                 }
-                //Decode Packet
-                realTimePacket.decode();
-                return;
-            }else{
+            //Case 2 - Real Time Reading ONLY
+            }
+            else{
                 _connection.EmptyIncomingDataBuffer();
                 Thread.sleep(10);
-                //Get Packet
-                realTimePacket = ReceiveData(new Packet(),1);
-                //Decode packet
-                realTimePacket.decode();
+                //Get Packet from connection manager
+                realTimePacket = ReceiveData(new Packet(),1);                
             }
+            //Decode packet
+            realTimePacket.decode();
+            NotifyPropertyChanged("realTimePacket");
         }
 
         //Record Functionality
         public void record(byte time)
         {
-            recordQueue = new ConcurrentQueue<Packet>;
             int packetsToRead = 100*time;
             isRecording = true;
             Packet recordPacket = new Packet();
@@ -100,8 +105,8 @@ namespace Application.Model
                     latestPacket = recordPacket;
                    }
                    //Save Data
-                    recordQueue.Enqueue(new Packet(recordPacket));
-                    
+                    recordQueue.Add(new Packet(recordPacket));
+                   //Decrement record counter
                    --packetsToRead;                    
                 }
                 
@@ -117,7 +122,7 @@ namespace Application.Model
                         for (int i = 0; i < 100*time; i++)
                         {
                             //Process Data
-                            int[] processedData = recordQueue.Dequeue().getDecodedData();
+                            int[] processedData = recordQueue.Take().getDecodedData();
                             for (int j = 0; j < Packet.PD_SIZE; j++)
                             {
                                 //Save to CSV
@@ -131,7 +136,6 @@ namespace Application.Model
         }
 
         public void startRealTimeReading(){
-            setupRealTimeTimer();
             realTimeTimer.Enabled = true;
         }
         

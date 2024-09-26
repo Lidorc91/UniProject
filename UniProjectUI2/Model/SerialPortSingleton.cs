@@ -9,7 +9,7 @@ namespace Application.Model
 
         private SerialPortManager()
         {
-            this._serialPort = new SerialPort();
+            Initiliaze();
             DefineConnectionSettings(this._serialPort);
         }
 

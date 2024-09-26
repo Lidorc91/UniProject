@@ -71,13 +71,10 @@ namespace UniProjectUI2
         #endregion
         public MainWindow()
         {
-            serialPort = new SerialPort();
             InitializeComponent();
-
             vm = new DeviceViewModel(new DeviceManager());
             DataContext = vm;
-
-            vm.GetData();
+            serialPort = new SerialPort();
 
             // create  loggers and add them to the plot
             Logger1 = DevGraph.Plot.Add.DataLogger();
@@ -93,7 +90,6 @@ namespace UniProjectUI2
 
             InitializePlot();
             InitializeSerialPort();
-
         }
         private void CurrentValidationTextBox(object sender, TextCompositionEventArgs e) //this method validates inputs into the current box
         {
@@ -236,7 +232,6 @@ namespace UniProjectUI2
                 byte led = 0;
                 dataToSend = new byte[] { 0x20, led };
                 sendCommand(dataToSend);
-
             }
             if (color.Content == Red_LED.Content)
             {

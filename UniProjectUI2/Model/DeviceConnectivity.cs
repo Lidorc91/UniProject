@@ -15,6 +15,7 @@ namespace Application.Model
         public DeviceManager()
         {
             _connection = GetInstance();
+            _connection.setupRealTimeTimer();
         }
 
         //Initialize Relevant Connectivity (SerialPort / Bluetooth / etc.)
@@ -31,6 +32,8 @@ namespace Application.Model
                 this.PropertyChanged(this, new PropertyChangedEventArgs(propName));
         }
 
+
+       
         public void Connect(String port)
         {
             _connection.Connect(port);

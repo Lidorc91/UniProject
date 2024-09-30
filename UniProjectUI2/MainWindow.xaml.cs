@@ -451,8 +451,8 @@ namespace UniProjectUI2
         }
         private void Analyze(object sender, RoutedEventArgs e)
         {
-            //exepath = "PPG_analyzer.exe";
-            exepath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "PPG_analyzer.exe");
+           string exename = "PPG_analyzer.exe";
+            exepath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), exename);
             ProcessStartInfo processInfo = new ProcessStartInfo
             {
                 FileName = exepath,

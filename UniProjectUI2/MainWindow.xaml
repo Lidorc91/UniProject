@@ -64,6 +64,9 @@
 					</ComboBox>
 					<Label x:Name="RTIA_labal" Content="RTIA[Kohm]" HorizontalAlignment="Left" Margin="10,275,0,0" VerticalAlignment="Top" Height="24"/>
 					<Label x:Name="RINT_labal" Content="RINT[Kohm]" HorizontalAlignment="Left" Margin="10,325,0,0" VerticalAlignment="Top" Height="24"/>
+          
+          <Button x:Name="test_btn" Content="Test" HorizontalAlignment="Left" Margin="43,462,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="test_click"/>
+					<TextBox x:Name="test_txt" HorizontalAlignment="Left" Margin="46,500,0,0" TextWrapping="Wrap" Text="{Binding txt}" VerticalAlignment="Top" Width="80" Height="24"/>
 					<ScottPlot:WpfPlot x:Name="DevGraph" Margin="286,-10,30,36" />
 				</Grid>
 			</TabItem>

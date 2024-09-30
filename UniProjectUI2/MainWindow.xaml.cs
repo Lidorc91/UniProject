@@ -200,5 +200,9 @@ namespace UniProjectUI2
 
         }
 
+        private void test_txt_TextChanged()
+        {
+
+        }
     }
 }

@@ -11,6 +11,10 @@ namespace Application.Model
         {
             Initiliaze();
             DefineConnectionSettings(this._serialPort);
+
+            //TODO - Change port selection location later - In UI to DeviceManager
+            this._port = "COM3";
+            Connect(this._port);
         }
 
         public static IConnectionManager GetInstance()

@@ -129,7 +129,7 @@ namespace UniProjectUI2
         }
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            Play_button.Content = vm.StartReading ? "Halt" : "Play"; 
+            Play_button.Content = vm.StartReading ? "Play" : "Halt"; 
             vm.StartReading = !vm.StartReading;
         }
         

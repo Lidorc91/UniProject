@@ -18,15 +18,31 @@ namespace Application.Model
 
         //Recording Variables
         private volatile bool isRecording = false;
-        BlockingCollection<Packet> recordQueue = new BlockingCollection<Packet>();
+        BlockingCollection<DataPacket> recordQueue = new BlockingCollection<DataPacket>();
         private readonly object _lock = new object();
         private volatile int recordPacketsToRead;
-        private Packet latestPacket;
+        private DataPacket latestPacket;
 
         //Real-Time Variables
         private volatile bool isRTReading = false;
-        private Packet _realTimePacket;
-        public Packet realTimePacket => _realTimePacket;
+        private DataPacket _realTimePacket;
+        public DataPacket realTimePacket
+        {
+            get
+            {
+                return _realTimePacket;
+            }
+            set
+            {
+                //When Packet Changes - decode and notify
+                if (_realTimePacket != null)
+                {
+                    _realTimePacket = value;
+                    _realTimePacket.decode();
+                    NotifyPropertyChanged("realTimePacket");
+                }
+            }
+        } 
 
         //Timers Variables
         private System.Timers.Timer realTimeTimer;
@@ -69,12 +85,11 @@ namespace Application.Model
 
         private void realtimeThread(object sender, ElapsedEventArgs e)
         {
-            Packet TempPacket;
             //Case 1 - Active Recording 
             if(isRecording){
                 //Get Packet from record thread
                 lock (_lock){
-                  _realTimePacket = new Packet(latestPacket.getRawData());
+                  _realTimePacket = new DataPacket(latestPacket.GetRawData());
                 }
             //Case 2 - Real Time Reading ONLY
             }
@@ -82,17 +97,14 @@ namespace Application.Model
                 _connection.EmptyIncomingDataBuffer();
                 Thread.Sleep(10);
                 //Get Packet from connection manager
-                _realTimePacket = new Packet();
+                _realTimePacket = new DataPacket();
                 _connection.ReceiveData(_realTimePacket, 1);
             }
-            //Decode packet
-            _realTimePacket.decode();
-            NotifyPropertyChanged("realTimePacket");
         }
 
         private void recordThread(object sender, ElapsedEventArgs e)
         {
-            Packet recordPacket = new Packet();
+            DataPacket recordPacket = new DataPacket();
             if(recordPacketsToRead > 0){
                     //Read
                     _connection.ReceiveData(recordPacket,1);
@@ -101,7 +113,7 @@ namespace Application.Model
                     latestPacket = recordPacket;
                    }
                    //Save Data
-                    recordQueue.Add(new Packet(recordPacket.getRawData()));
+                    recordQueue.Add(new DataPacket(recordPacket.GetRawData()));
                    //Decrement record counter
                    --recordPacketsToRead;                    
                 }else{
@@ -130,8 +142,8 @@ namespace Application.Model
                     for (int i = 0; i < 100 * time; i++)
                     {
                         //Process Data
-                        int[] processedData = recordQueue.Take().getDecodedData();
-                        for (int j = 0; j < Packet.PD_SIZE; j++)
+                        int[] processedData = recordQueue.Take().GetProcessedData();
+                        for (int j = 0; j < DataPacket.PD_SIZE; j++)
                         {
                             //Save to CSV
                             file.Write($"{processedData[j]},");

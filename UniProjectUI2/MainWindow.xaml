@@ -42,8 +42,8 @@
 					</ComboBox>
 					<GroupBox x:Name="LED_group" Header="LED Color" Background="#FFF3EBEB" Margin="125,116,768,336">
 						<Grid x:Name="led_goup_grid" Background="#FFF3EBEB">
-							<RadioButton x:Name="Green_LED" Content="Green" HorizontalAlignment="Left" Margin="4,23,0,0" VerticalAlignment="Top" GroupName="lights" IsChecked="{Binding SelectedLED, Mode=OneWayToSource, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Green}"/>
-							<RadioButton x:Name="Red_LED" Content="Red" HorizontalAlignment="Left" Margin="4,0,0,0" VerticalAlignment="Top" GroupName="lights" IsChecked="{Binding SelectedLED, Mode=OneWayToSource, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Red}" />
+							<RadioButton x:Name="Green_LED" Content="Green" HorizontalAlignment="Left" Margin="4,23,0,0" VerticalAlignment="Top" GroupName="lights" IsChecked="False" Checked="LEDChange"/>
+							<RadioButton x:Name="Red_LED" Content="Red" HorizontalAlignment="Left" Margin="4,0,0,0" VerticalAlignment="Top" GroupName="lights" IsChecked="True" Checked="LEDChange"/>
 						</Grid>
 					</GroupBox>
 					<Button x:Name="Play_button" Content="Play" HorizontalAlignment="Left" Margin="26,124,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="PlayButton_Click"/>

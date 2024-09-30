@@ -10,8 +10,8 @@ namespace Application.Model
         void DisposeConnection(); //Closes Connection
         void StartDataTransfer();
         void StopDataTransfer();
-        void SendCommand(Packet data); //Sends Command to the device
-        int ReceiveData(Packet buffer, int PacketsToRead); //Recevies number of bytes read
+        void SendCommand(byte[] data); //Sends Command to the device
+        int ReceiveData(DataPacket buffer, int PacketsToRead); //Recevies number of bytes read
         void EmptyIncomingDataBuffer();
         bool IsConnected();
         static abstract IConnectionManager GetInstance();

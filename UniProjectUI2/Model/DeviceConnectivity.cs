@@ -51,8 +51,7 @@ namespace Application.Model
 
             try
             {
-                Packet packet = new Packet(dataToSend);
-                _connection.SendCommand(packet);
+                _connection.SendCommand(dataToSend);
                 Thread.Sleep(250);
                 Console.WriteLine("Operation Successful");
             }

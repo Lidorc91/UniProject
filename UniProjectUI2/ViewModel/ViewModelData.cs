@@ -27,6 +27,7 @@ namespace Application.ViewModel
 
         private void InitializeDefaultValues(){
             DefaultLED();
+            _startReading = false;
         }
 
         private void DefaultLED(){

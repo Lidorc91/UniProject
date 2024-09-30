@@ -47,11 +47,11 @@ namespace Application.Model
         }
 
         public void StartDataTransfer(){
-            Packet command = new Packet(new byte[] {0x10, 1});
+            byte[] command = new byte[] {0x10, 1};
             SendCommand(command);
         }
         public void StopDataTransfer(){
-            Packet command = new Packet(new byte[] {0x10, 0});
+            byte[] command = new byte[] { 0x10, 0 };
             SendCommand(command);
         }
 
@@ -63,19 +63,15 @@ namespace Application.Model
             }
         }
 
-    
-
         /*  Data Management Methods  */
-        public void SendCommand(Packet buffer)
+        public void SendCommand(byte[] command)
         {
-            _serialPort.Write(buffer.getRawData(), 0, Packet.PACKET_SIZE);
+            _serialPort.Write(command, 0, command.Length);
         }
 
-        
-
-        public int ReceiveData(Packet buffer, int PacketsToRead)
+        public int ReceiveData(DataPacket buffer, int PacketsToRead)
         {
-            return _serialPort.Read(buffer.getRawData(), 0, PacketsToRead * Packet.PACKET_SIZE);
+            return _serialPort.Read(buffer.GetRawData(), 0, PacketsToRead * DataPacket.PACKET_SIZE);
         }
 
         public void EmptyIncomingDataBuffer()

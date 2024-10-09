@@ -201,7 +201,8 @@ namespace UniProjectUI2
         }
         
         //Testing
-        private void test_click{
+        private void test_click(object sender, RoutedEventArgs e)
+        {
             vm.TestClicked = true;
         }
 

@@ -169,7 +169,22 @@ namespace Application.Model
         }
 
         //Testing
-        public string TestText { get; set; }
+        private string _testText;
+        public string TestText
+        {
+            get
+            {
+                return _testText;
+            }
+            set
+            {
+                if (_testText != value)
+                {
+                    _testText = value;
+                    NotifyPropertyChanged(nameof(TestText));
+                }
+            }
+        }
         public void ModelTest(){
             TestText = "Clicked";            
         }       

@@ -482,7 +482,7 @@ namespace UniProjectUI2
             string analyseFilePath = System.IO.Path.Combine(analyseFolderPath, csvname);
 
             string exename = "PPG_analyzer_v1.exe";
-            exepath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), exename);
+            exepath = System.IO.Path.Combine(analyseFolderPath, exename);
             ProcessStartInfo processInfo = new ProcessStartInfo
             {
                 FileName = exepath,
@@ -630,11 +630,15 @@ namespace UniProjectUI2
             void Readanalysed()
             {
 
-                // File path
-                string filePath = getFilePath();
+            string curretDirectory = Directory.GetCurrentDirectory();
+            string analyseFolderPath = System.IO.Path.Combine(curretDirectory, "Anslysefolder");
 
-                // Array to store the PPG values
-                List<double> PPG_Array = new List<double>();
+
+            // Get the most recently modified file with the ending '_PPG_output.csv'
+            string recentFile = GetMostRecentCsvFile(analyseFolderPath, "_PPG_output.csv");
+
+            // Array to store the PPG values
+            List<double> PPG_Array = new List<double>();
 
                 // Variables to store the non-zero values from the second row
                 int HR = 0;
@@ -643,7 +647,7 @@ namespace UniProjectUI2
                 double SpO2 = 0;
 
                 // Reading the CSV file
-                using (var reader = new StreamReader(filePath))
+                using (var reader = new StreamReader(recentFile))
                 {
                     // Skipping the header row
                     var header = reader.ReadLine();
@@ -680,17 +684,41 @@ namespace UniProjectUI2
                 HRV_number.Content = HRV.ToString();
                 double[] PPGArray = PPG_Array.ToArray();
                 DashGraph.Plot.Add.Signal(PPGArray);
+                DashGraph.Refresh();
+                Analyse_Button.Content = "anal";
             }
 
+        static string GetMostRecentCsvFile(string folderPath, string fileSuffix)
+        {
+            // Get all .csv files in the directory that end with the specified suffix
+            var csvFiles = Directory.GetFiles(folderPath, $"*{fileSuffix}");
 
+            if (csvFiles.Length == 0)
+            {
+                return null; // No matching files found
+            }
+
+            // Order the files by LastWriteTime (last modified time) in descending order
+            var mostRecentFile = csvFiles
+                .Select(file => new FileInfo(file))
+                .OrderByDescending(f => f.LastWriteTime)
+                .FirstOrDefault();
+
+            // Return the full path of the most recently modified file
+            return mostRecentFile?.FullName;
+        }
         private void Start_Analyze(object sender, RoutedEventArgs e)
         {
-            
-                // File path
-                string filePath = getFilePath();
+            Analyse_Button.Content = "Starting Analysis";
+            string curretDirectory = Directory.GetCurrentDirectory();
+            string analyseFolderPath = System.IO.Path.Combine(curretDirectory, "Anslysefolder");
 
-                // Array to store the PPG values
-                List<double> PPG_Array = new List<double>();
+
+            // Get the most recently modified file with the ending '_PPG_output.csv'
+            string recentFile = GetMostRecentCsvFile(analyseFolderPath, "_PPG_output.csv");
+
+            // Array to store the PPG values
+            List<double> PPG_Array = new List<double>();
 
                 // Variables to store the non-zero values from the second row
                 int HR = 0;
@@ -699,7 +727,7 @@ namespace UniProjectUI2
                 double SpO2 = 0;
 
                 // Reading the CSV file
-                using (var reader = new StreamReader(filePath))
+                using (var reader = new StreamReader(recentFile))
                 {
                     // Skipping the header row
                     var header = reader.ReadLine();
@@ -726,6 +754,11 @@ namespace UniProjectUI2
                         currentRow++;
                     }
                 }
+            Console.WriteLine($"Heart Rate (HR): {HR}");
+            Console.WriteLine($"Respiratory Rate (RR): {RR}");
+            Console.WriteLine($"Heart Rate Variability (HRV): {HRV}");
+            Console.WriteLine($"Oxygen Saturation (SpO2): {SpO2}");
+            Analyse_Button.Content = "Ended Analysis, Starting update";
                 upDateDashboard(PPG_Array, HR, RR, HRV, SpO2);
         }
     }

@@ -8,6 +8,9 @@ using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.ComponentModel;
+using System.Diagnostics;
+
 namespace Application.ViewModel
 {
     // Data Setup for ViewModel
@@ -23,6 +26,9 @@ namespace Application.ViewModel
                 NotifyPropertyChanged("VM_" + e.PropertyName);
             };
             InitializeDefaultValues();
+
+            //Testing
+            Stopwatch stopwatch = new Stopwatch();         
         }
 
         private void InitializeDefaultValues(){
@@ -116,6 +122,38 @@ namespace Application.ViewModel
         {
             if (this.PropertyChanged != null)
                 this.PropertyChanged(this, new PropertyChangedEventArgs(propName));
+        }
+
+        //Testing
+        private bool _testClicked;
+        public bool TestClicked
+        {
+            get{
+                return TestClicked;
+            }
+            set{
+                if(TestClicked != value)
+                {
+                    //stopwatch.Start();                
+                    TestClicked = value;
+                    _manager.ModelTest()
+                }                
+            }
+        }
+
+        private string _testText;
+        public bool VM_TestText
+        {
+            get{
+                return VM_TestText;
+            }
+            set{
+                if(VM_TestText != value)
+                {                    
+                    VM_TestText = value;
+                    NotifyPropertyChanged(nameof(VM_TestText));                    
+                }                
+            }
         }
     }
 }

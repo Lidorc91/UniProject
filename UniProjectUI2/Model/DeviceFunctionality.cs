@@ -166,6 +166,12 @@ namespace Application.Model
             realTimeTimer.Enabled = false;
             if(!isRecording) _connection.StopDataTransfer();
             isRTReading = false;
+        }
+
+        //Testing
+        public string TestText { get; set; }
+        public void ModelTest(){
+            TestText = "Clicked";            
         }       
     }
 }

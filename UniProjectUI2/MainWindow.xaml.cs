@@ -199,10 +199,11 @@ namespace UniProjectUI2
         {
 
         }
-
-        private void test_txt_TextChanged()
-        {
-
+        
+        //Testing
+        private void test_click{
+            vm.TestClicked = true;
         }
+
     }
 }

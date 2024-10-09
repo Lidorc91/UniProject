@@ -40,7 +40,7 @@ namespace UniProjectUI2
         static int bytesToRead = 22 * packetNum;
         static int pace = 1000;
         static int pace2 = 10;
-        static int freq2 = (1000/pace2);
+        static int freq2 = (1000 / pace2);
         byte[] buffer = new byte[bytesToRead];
         byte[] dataToSend;
         readonly ScottPlot.Plottables.DataLogger Logger1;
@@ -137,6 +137,11 @@ namespace UniProjectUI2
             DevGraph.Plot.ScaleFactor = 2;
             DevGraph.Plot.Axes.SetLimits(-5, 100, -5, 35000);
             DevGraph.Refresh();
+            DashGraph.Plot.Title("PPG");
+            DashGraph.Plot.XLabel("Time [sec]");
+            DashGraph.Plot.YLabel("Intensity [a.u]");
+
+
 
         }
         private void UpdatePlotWithNewData(double time, int[] data)
@@ -315,10 +320,10 @@ namespace UniProjectUI2
 
         }
         void Record(object sender, ElapsedEventArgs e)
-            {
+        {
             try
             {
-                _stopwatch.Reset(); 
+                _stopwatch.Reset();
                 serialPort.ReadExisting(); // clear the buffer
                 copyPacket = new Packet();
                 _stopwatch.Start();
@@ -339,8 +344,8 @@ namespace UniProjectUI2
                 RecTime.Content = _stopwatch.Elapsed.TotalMilliseconds.ToString();
             });
             if (recordPacketsToRead == 0)
-               EndRecording();
-            }
+                EndRecording();
+        }
         private void StartRecord(object sender, RoutedEventArgs e)
         {
             // if(recTime == 0)
@@ -387,7 +392,7 @@ namespace UniProjectUI2
             {
                 int[] decoded = decode(recordQueue.Dequeue().getData());
                 for (int j = 0; j < 5; j++)
-                    decodedArray[i,j] = decoded[j];
+                    decodedArray[i, j] = decoded[j];
             }
             PrintToCSV(decodedArray);
         }
@@ -397,8 +402,28 @@ namespace UniProjectUI2
             var rows = array.GetLength(0);
             var cols = array.GetLength(1);
             csvname = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv";
-            filePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), csvname);
-            using (StreamWriter file = new StreamWriter(filePath))
+            // Get the current directory
+            string currentDirectory = Directory.GetCurrentDirectory();
+
+            // Define paths to the 'Log' and 'Analysefolder' directories
+            string logFolderPath = System.IO.Path.Combine(currentDirectory, "Log");
+            string analyseFolderPath = System.IO.Path.Combine(currentDirectory, "Anslysefolder");
+            string logFilePath = System.IO.Path.Combine(logFolderPath, csvname);
+            string analyseFilePath = System.IO.Path.Combine(analyseFolderPath, csvname);
+
+            using (StreamWriter file = new StreamWriter(analyseFilePath))
+            {
+                file.AutoFlush = true;
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < cols; j++)
+                    {
+                        file.Write($"{array[i, j]},");
+                    }
+                    file.Write("\n");
+                }
+            }
+            using (StreamWriter file = new StreamWriter(logFilePath))
             {
                 file.AutoFlush = true;
                 for (int i = 0; i < rows; i++)
@@ -451,26 +476,52 @@ namespace UniProjectUI2
         }
         private void Analyze(object sender, RoutedEventArgs e)
         {
-           string exename = "PPG_analyzer.exe";
+
+            string curretDirectory = Directory.GetCurrentDirectory();
+            string analyseFolderPath = System.IO.Path.Combine(curretDirectory, "Anslysefolder");
+            string analyseFilePath = System.IO.Path.Combine(analyseFolderPath, csvname);
+
+            string exename = "PPG_analyzer_v1.exe";
             exepath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), exename);
             ProcessStartInfo processInfo = new ProcessStartInfo
             {
                 FileName = exepath,
-                Arguments = filePath,  // Pass the filepath to the .exe
-                UseShellExecute = true, // We use shell execute here
+                Arguments = analyseFilePath,  // Pass the filepath to the .exe
+                UseShellExecute = false, // We don't use shell execute here
                 RedirectStandardOutput = false, // We don't need to capture the output
-                CreateNoWindow = false // You can set this to true if you don't want a new window
+                CreateNoWindow = false, // You can set this to true if you don't want a new window
+                RedirectStandardError = true
             };
 
             try
             {
                 // Start the external MATLAB process
-                Process process = Process.Start(processInfo);
+                using (Process process = new Process())
+                {
+                    // Assign the start info
+                    process.StartInfo = processInfo;
+
+                    // Subscribe to error streams
+                    process.ErrorDataReceived += (sender, e) => Console.WriteLine("ERROR: " + e.Data);
+
+                    // Start the process
+                    process.Start();
+
+                    // Begin async reading of output and error streams
+                    process.BeginErrorReadLine();
+
+                    // Wait for the process to exit
+                    process.WaitForExit();
+
+                    // Keep the console open
+                    Console.WriteLine("Process completed. Press any key to exit...");
+                    Console.Read();
+                }
             }
             catch (Exception ex)
             {
                 // Handle any errors
-                MessageBox.Show($"Error starting the MATLAB app: {ex.Message}\n{ex.StackTrace}");
+                MessageBox.Show($"Error starting the MATLAB app: {ex.Message} # \n{ex.StackTrace}");
             }
         }
         private void WaitForBufferFill()
@@ -550,7 +601,132 @@ namespace UniProjectUI2
             timer.Elapsed += ReadData;
             PrintToCSV(decodedArray);
         }
+        string getFilePath()
+        {
+            // Define the path to the Most_Recent_Output.txt file
+            string txtFilePath = @"Most_Recent_Output.txt";
+
+            // Check if the file exists
+            if (!File.Exists(txtFilePath))
+            {
+                throw new FileNotFoundException("The file Most_Recent_Output.txt was not found.");
+            }
+
+            // Read the first line
+            using (StreamReader reader = new StreamReader(txtFilePath))
+            {
+                string filePath = reader.ReadLine();
+
+                // Remove ".csv" from the end if present
+                if (filePath.EndsWith(".csv"))
+                {
+                    filePath = filePath.Substring(0, filePath.Length - 4);
+                }
+
+                // Append "_PPG_output.csv" to the file path
+                return filePath + "_PPG_output.csv";
+            }
+        }
+            void Readanalysed()
+            {
+
+                // File path
+                string filePath = getFilePath();
+
+                // Array to store the PPG values
+                List<double> PPG_Array = new List<double>();
+
+                // Variables to store the non-zero values from the second row
+                int HR = 0;
+                int RR = 0;
+                int HRV = 0;
+                double SpO2 = 0;
+
+                // Reading the CSV file
+                using (var reader = new StreamReader(filePath))
+                {
+                    // Skipping the header row
+                    var header = reader.ReadLine();
+
+                    int currentRow = 0;
+
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+                        var values = line.Split(',');
+
+                        // Storing all values from the PPG column (column 1)
+                        PPG_Array.Add(double.Parse(values[0]));
+
+                        // If it's the second row, extract non-zero values
+                        if (currentRow == 1)
+                        {
+                            HR = int.Parse(values[1]);
+                            RR = int.Parse(values[2]);
+                            HRV = int.Parse(values[3]);
+                            SpO2 = double.Parse(values[4]);
+                        }
+
+                        currentRow++;
+                    }
+                }
+                upDateDashboard(PPG_Array, HR, RR, HRV, SpO2);
+            }
+            void upDateDashboard(List<double> PPG_Array, int HR, int RR, int HRV, double SpO2)
+            {
+                SpO2_number.Content = SpO2.ToString();
+                HR_number.Content = HR.ToString();
+                RR_number.Content = RR.ToString();
+                HRV_number.Content = HRV.ToString();
+                double[] PPGArray = PPG_Array.ToArray();
+                DashGraph.Plot.Add.Signal(PPGArray);
+            }
 
 
+        private void Start_Analyze(object sender, RoutedEventArgs e)
+        {
+            
+                // File path
+                string filePath = getFilePath();
+
+                // Array to store the PPG values
+                List<double> PPG_Array = new List<double>();
+
+                // Variables to store the non-zero values from the second row
+                int HR = 0;
+                int RR = 0;
+                int HRV = 0;
+                double SpO2 = 0;
+
+                // Reading the CSV file
+                using (var reader = new StreamReader(filePath))
+                {
+                    // Skipping the header row
+                    var header = reader.ReadLine();
+
+                    int currentRow = 0;
+
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+                        var values = line.Split(',');
+
+                        // Storing all values from the PPG column (column 1)
+                        PPG_Array.Add(double.Parse(values[0]));
+
+                        // If it's the second row, extract non-zero values
+                        if (currentRow == 1)
+                        {
+                            HR = int.Parse(values[1]);
+                            RR = int.Parse(values[2]);
+                            HRV = int.Parse(values[3]);
+                            SpO2 = double.Parse(values[4]);
+                        }
+
+                        currentRow++;
+                    }
+                }
+                upDateDashboard(PPG_Array, HR, RR, HRV, SpO2);
+        }
     }
-    }
+}

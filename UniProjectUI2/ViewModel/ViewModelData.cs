@@ -125,32 +125,35 @@ namespace Application.ViewModel
         }
 
         //Testing
-        private bool _testClicked;
+        private bool _testClicked = false;
         public bool TestClicked
         {
             get{
-                return TestClicked;
+                return _testClicked;
             }
             set{
-                if(TestClicked != value)
+                if(_testClicked != value)
                 {
                     //stopwatch.Start();                
-                    TestClicked = value;
-                    _manager.ModelTest()
+                    _testClicked = value;
+                    if (_testClicked)
+                    {
+                        _manager.ModelTest();
+                    }
                 }                
             }
         }
 
         private string _testText;
-        public bool VM_TestText
+        public string VM_TestText
         {
             get{
-                return VM_TestText;
+                return _testText;
             }
             set{
-                if(VM_TestText != value)
-                {                    
-                    VM_TestText = value;
+                if(_testText != value)
+                {
+                    _testText = value;
                     NotifyPropertyChanged(nameof(VM_TestText));                    
                 }                
             }

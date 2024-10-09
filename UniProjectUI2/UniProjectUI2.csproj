@@ -17,8 +17,6 @@
     <Page Remove="App.xaml" />
   </ItemGroup>
   
-  <OutputType>WinExe</OutputType>
-
   <ItemGroup>
     <COMReference Include="Accessibility">
       <WrapperTool>tlbimp</WrapperTool>

@@ -627,65 +627,19 @@ namespace UniProjectUI2
                 return filePath + "_PPG_output.csv";
             }
         }
-            void Readanalysed()
+            void upDateDashboard(double[] PPG_Array, int HR, int RR, int HRV, double SpO2)
             {
-
-            string curretDirectory = Directory.GetCurrentDirectory();
-            string analyseFolderPath = System.IO.Path.Combine(curretDirectory, "Anslysefolder");
-
-
-            // Get the most recently modified file with the ending '_PPG_output.csv'
-            string recentFile = GetMostRecentCsvFile(analyseFolderPath, "_PPG_output.csv");
-
-            // Array to store the PPG values
-            List<double> PPG_Array = new List<double>();
-
-                // Variables to store the non-zero values from the second row
-                int HR = 0;
-                int RR = 0;
-                int HRV = 0;
-                double SpO2 = 0;
-
-                // Reading the CSV file
-                using (var reader = new StreamReader(recentFile))
-                {
-                    // Skipping the header row
-                    var header = reader.ReadLine();
-
-                    int currentRow = 0;
-
-                    while (!reader.EndOfStream)
-                    {
-                        var line = reader.ReadLine();
-                        var values = line.Split(',');
-
-                        // Storing all values from the PPG column (column 1)
-                        PPG_Array.Add(double.Parse(values[0]));
-
-                        // If it's the second row, extract non-zero values
-                        if (currentRow == 1)
-                        {
-                            HR = int.Parse(values[1]);
-                            RR = int.Parse(values[2]);
-                            HRV = int.Parse(values[3]);
-                            SpO2 = double.Parse(values[4]);
-                        }
-
-                        currentRow++;
-                    }
-                }
-                upDateDashboard(PPG_Array, HR, RR, HRV, SpO2);
-            }
-            void upDateDashboard(List<double> PPG_Array, int HR, int RR, int HRV, double SpO2)
+            RecTime.Dispatcher.InvokeAsync(() =>
             {
                 SpO2_number.Content = SpO2.ToString();
                 HR_number.Content = HR.ToString();
                 RR_number.Content = RR.ToString();
                 HRV_number.Content = HRV.ToString();
-                double[] PPGArray = PPG_Array.ToArray();
-                DashGraph.Plot.Add.Signal(PPGArray);
+                DashGraph.Plot.Add.SignalConst(PPG_Array);
+                DashGraph.Plot.Axes.AutoScale();
                 DashGraph.Refresh();
                 Analyse_Button.Content = "anal";
+            });
             }
 
         static string GetMostRecentCsvFile(string folderPath, string fileSuffix)
@@ -717,49 +671,23 @@ namespace UniProjectUI2
             // Get the most recently modified file with the ending '_PPG_output.csv'
             string recentFile = GetMostRecentCsvFile(analyseFolderPath, "_PPG_output.csv");
 
-            // Array to store the PPG values
-            List<double> PPG_Array = new List<double>();
+            // Read all lines from the CSV file
+            var lines = File.ReadAllLines(recentFile);
 
-                // Variables to store the non-zero values from the second row
-                int HR = 0;
-                int RR = 0;
-                int HRV = 0;
-                double SpO2 = 0;
+            // Initialize the array for the first column (PPG values) starting from row 2
+            double[] ppgValues = lines.Skip(2) // Skip the header and first row
+                .Select(line => double.Parse(line.Split(',')[0])) // Get the first column
+                .ToArray();
 
-                // Reading the CSV file
-                using (var reader = new StreamReader(recentFile))
-                {
-                    // Skipping the header row
-                    var header = reader.ReadLine();
+            // Extract the second row (index 1) values for the other columns
+            var secondRow = lines[1].Split(',');
+            int hr = int.Parse(secondRow[1]);
+            int rr = int.Parse(secondRow[2]);
+            int hrv = int.Parse(secondRow[3]);
+            double spo2 = double.Parse(secondRow[4]);
+            
 
-                    int currentRow = 0;
-
-                    while (!reader.EndOfStream)
-                    {
-                        var line = reader.ReadLine();
-                        var values = line.Split(',');
-
-                        // Storing all values from the PPG column (column 1)
-                        PPG_Array.Add(double.Parse(values[0]));
-
-                        // If it's the second row, extract non-zero values
-                        if (currentRow == 1)
-                        {
-                            HR = int.Parse(values[1]);
-                            RR = int.Parse(values[2]);
-                            HRV = int.Parse(values[3]);
-                            SpO2 = double.Parse(values[4]);
-                        }
-
-                        currentRow++;
-                    }
-                }
-            Console.WriteLine($"Heart Rate (HR): {HR}");
-            Console.WriteLine($"Respiratory Rate (RR): {RR}");
-            Console.WriteLine($"Heart Rate Variability (HRV): {HRV}");
-            Console.WriteLine($"Oxygen Saturation (SpO2): {SpO2}");
-            Analyse_Button.Content = "Ended Analysis, Starting update";
-                upDateDashboard(PPG_Array, HR, RR, HRV, SpO2);
+            upDateDashboard(ppgValues, hr, rr, hrv, spo2);
         }
     }
 }

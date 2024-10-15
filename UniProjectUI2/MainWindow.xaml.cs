@@ -57,7 +57,7 @@ namespace UniProjectUI2
         private static int data;
         private object Lock = new object();
         private object Lock2 = new object();
-
+        int index = 0;
         //Record Variables
         Queue<Packet> recordQueue = new Queue<Packet>();
         int recordPacketsToRead = 0;
@@ -94,11 +94,6 @@ namespace UniProjectUI2
             Logger3 = DevGraph.Plot.Add.DataLogger();
             Logger4 = DevGraph.Plot.Add.DataLogger();
             Logger5 = DevGraph.Plot.Add.DataLogger();
-            Logger1.ViewJump();
-            Logger2.ViewJump();
-            Logger3.ViewJump();
-            Logger4.ViewJump();
-            Logger5.ViewJump();
 
             InitializePlot();
             InitializeSerialPort();
@@ -153,10 +148,19 @@ namespace UniProjectUI2
                 Logger3.Add(data[2]);
                 Logger4.Add(data[3]);
                 Logger5.Add(data[4]);
+                if(index >= 500)
+                {
+                    Logger1.ViewJump();
+                    Logger2.ViewJump();
+                    Logger3.ViewJump();
+                    Logger4.ViewJump();
+                    Logger5.ViewJump();
+                }
                 RecTime.Dispatcher.InvokeAsync(() =>
                 {
                     DevGraph.Refresh();
                 });
+                index++;
             }
         }
         private void PlayButton_Click(object sender, RoutedEventArgs e)
@@ -635,8 +639,12 @@ namespace UniProjectUI2
                 HR_number.Content = HR.ToString();
                 RR_number.Content = RR.ToString();
                 HRV_number.Content = HRV.ToString();
-                DashGraph.Plot.Add.SignalConst(PPG_Array);
+                
+                // Create X data where each value is index * 0.01
+                double[] xData = Enumerable.Range(0, PPG_Array.Length).Select(i => i * 0.01).ToArray();
+                DashGraph.Plot.Add.SignalXY(xData, PPG_Array);
                 DashGraph.Plot.Axes.AutoScale();
+                
                 DashGraph.Refresh();
                 Analyse_Button.Content = "anal";
             });

@@ -49,7 +49,7 @@
                     </GroupBox>
                     <Button x:Name="Play_button" Content="Play" HorizontalAlignment="Left" Margin="26,124,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="PlayButton_Click"/>
                     <Button x:Name="Record_button" Content="Record" HorizontalAlignment="Left" Margin="26,151,0,0" VerticalAlignment="Top" Height="20" Width="86" Click="StartRecord"/>
-                    <Button x:Name="Analooe" Content="Analyze" HorizontalAlignment="Left" Margin="26,176,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="Analyze"/>
+                    <Button x:Name="c" Content="Analyze" HorizontalAlignment="Left" Margin="26,176,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="Analyze"/>
                     <ComboBox x:Name="RTIA_box" HorizontalAlignment="Left" Margin="10,300,0,0" VerticalAlignment="Top" Width="120" SelectedIndex="4" SelectionChanged="RTIAChange" SelectedValuePath="Content">
                         <ComboBoxItem Content="200"/>
                         <ComboBoxItem Content="100"/>

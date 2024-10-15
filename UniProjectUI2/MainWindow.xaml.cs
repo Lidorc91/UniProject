@@ -130,11 +130,17 @@ namespace UniProjectUI2
             DevGraph.Plot.ShowLegend();
             DevGraph.Plot.Legend.Alignment = Alignment.UpperLeft;
             DevGraph.Plot.ScaleFactor = 2;
+            Logger1.ViewJump(20.0);
+            Logger2.ViewJump(20.0);
+            Logger3.ViewJump(20.0);
+            Logger4.ViewJump(20.0);
+            Logger5.ViewJump(20.0);
             DevGraph.Plot.Axes.SetLimits(-5, 100, -5, 35000);
-            DevGraph.Refresh();
             DashGraph.Plot.Title("PPG");
             DashGraph.Plot.XLabel("Time [sec]");
             DashGraph.Plot.YLabel("Intensity [a.u]");
+            DevGraph.Refresh();
+
 
 
 
@@ -148,33 +154,31 @@ namespace UniProjectUI2
                 Logger3.Add(data[2]);
                 Logger4.Add(data[3]);
                 Logger5.Add(data[4]);
-                if(index >= 500)
-                {
-                    Logger1.ViewJump();
-                    Logger2.ViewJump();
-                    Logger3.ViewJump();
-                    Logger4.ViewJump();
-                    Logger5.ViewJump();
-                }
+
                 RecTime.Dispatcher.InvokeAsync(() =>
                 {
                     DevGraph.Refresh();
                 });
-                index++;
             }
         }
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Play_button.Content == "Halt")
+            if (Play_button.Content == "Stop")
             {
                 stopTransmit();
                 timer.Enabled = false;
-                Play_button.Content = "Play";
+                Play_button.Content = "Start";
+                disconnectPort(serialPort);
                 return;
             }
 
+            if(serialPort.IsOpen == false)
+            {
+                serialPort.Open();
+            }
             //This should only while the button says "play"
             startTransmit();
+            timer.Elapsed -= ReadData2;
             timer.Elapsed += ReadData;
             timer.AutoReset = true; // Continuously fire the Elapsed event
             timer.Enabled = true; // Start the timer
@@ -182,17 +186,17 @@ namespace UniProjectUI2
             // Record the start time
             startTime = DateTime.Now;
 
-            // Turn the play button into a Stop buttion
+            // Turn the play button into a Stop button
             RecTime.Dispatcher.InvokeAsync(() =>
             {
-                Play_button.Content = "Halt";
-                DevGraph.Plot.Axes.SetLimits(-5, 100, -5, 35000);
+                Play_button.Content = "Stop";
             });
         }
         private void ReadData(object sender, ElapsedEventArgs e)
         {
             lock (Lock)
             {
+
                 try
                 {
                     serialPort.ReadExisting(); //Read(Clear) old data in buffer
@@ -483,14 +487,12 @@ namespace UniProjectUI2
 
             string curretDirectory = Directory.GetCurrentDirectory();
             string analyseFolderPath = System.IO.Path.Combine(curretDirectory, "Anslysefolder");
-            string analyseFilePath = System.IO.Path.Combine(analyseFolderPath, csvname);
 
             string exename = "PPG_analyzer_v1.exe";
             exepath = System.IO.Path.Combine(analyseFolderPath, exename);
             ProcessStartInfo processInfo = new ProcessStartInfo
             {
                 FileName = exepath,
-                Arguments = analyseFilePath,  // Pass the filepath to the .exe
                 UseShellExecute = false, // We don't use shell execute here
                 RedirectStandardOutput = false, // We don't need to capture the output
                 CreateNoWindow = false, // You can set this to true if you don't want a new window
@@ -524,7 +526,12 @@ namespace UniProjectUI2
             }
             catch (Exception ex)
             {
-                // Handle any errors
+                // Handle any errors and write them to a file as well
+                using (StreamWriter errorLog = new StreamWriter("error_log.txt", append: true))
+                {
+                    errorLog.WriteLine($"{DateTime.Now}: Exception - {ex.Message} # \n{ex.StackTrace}");
+                }
+
                 MessageBox.Show($"Error starting the MATLAB app: {ex.Message} # \n{ex.StackTrace}");
             }
         }
@@ -548,6 +555,11 @@ namespace UniProjectUI2
         }
         void ReadData2(object sender, ElapsedEventArgs e)
         {
+            int bytesToRec = serialPort.BytesToRead;
+            if (bytesToRec > 20)
+            {
+                timer.Elapsed -= ReadData;
+            }
             try
             {
                 int bytesRead = serialPort.Read(buffer, 0, bytesToRead);
@@ -559,6 +571,11 @@ namespace UniProjectUI2
             int[] data = decode(buffer);
             // Calculate elapsed time
             //update Graph
+            TimeSpan elapsedRecTime = DateTime.Now - startTime;
+            RecTime.Dispatcher.InvokeAsync(() =>
+            {
+                RecTime.Content = bytesToRec.ToString();
+            });
             UpdatePlotWithNewData(0.0, data);
         }
         private void TransferDataToArray()
@@ -696,6 +713,16 @@ namespace UniProjectUI2
             
 
             upDateDashboard(ppgValues, hr, rr, hrv, spo2);
+        }
+        void disconnectPort(SerialPort serialPort)
+        {
+            if (serialPort.IsOpen)
+            {
+                byte[] dataToSend = new byte[] { 0x10, 1 };
+                sendCommand(dataToSend);
+                serialPort.Close();
+
+            }
         }
     }
 }

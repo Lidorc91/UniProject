@@ -10,14 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="biulogo.png" />
+    <!-- Removing conflicting entry for biulogo.png -->
+    <!--<None Remove="biulogo.png" />-->
   </ItemGroup>
 
   <ItemGroup>
-    <Page Remove="App.xaml" />
+    <!-- Ensure App.xaml is present for WPF startup -->
+    <!--<Page Remove="App.xaml" />-->
   </ItemGroup>
-  
-  <OutputType>WinExe</OutputType>
 
   <ItemGroup>
     <COMReference Include="Accessibility">

@@ -18,7 +18,11 @@
     <!-- Ensure App.xaml is present for WPF startup -->
     <!--<Page Remove="App.xaml" />-->
   </ItemGroup>
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> 18ee32d471aba158b69d2c32453228a8771200f6
   <ItemGroup>
     <COMReference Include="Accessibility">
       <WrapperTool>tlbimp</WrapperTool>

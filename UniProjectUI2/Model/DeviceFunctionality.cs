@@ -40,7 +40,7 @@ namespace Application.Model
 
         private void setupTimers()
         {
-            realTimeTimer = new System.Timers.Timer(200);
+            realTimeTimer = new System.Timers.Timer(100);
             realTimeTimer.Elapsed += realtimeThread;
             realTimeTimer.AutoReset = true;
 

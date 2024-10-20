@@ -32,16 +32,6 @@ namespace Application.Model
             {
                 return _realTimePacket;
             }
-            set
-            {
-                //When Packet Changes - decode and notify
-                if (_realTimePacket != null)
-                {
-                    _realTimePacket = value;
-                    _realTimePacket.decode();
-                    NotifyPropertyChanged("realTimePacket");
-                }
-            }
         } 
 
         //Timers Variables
@@ -50,7 +40,7 @@ namespace Application.Model
 
         private void setupTimers()
         {
-            realTimeTimer = new System.Timers.Timer(100);
+            realTimeTimer = new System.Timers.Timer(200);
             realTimeTimer.Elapsed += realtimeThread;
             realTimeTimer.AutoReset = true;
 
@@ -100,6 +90,8 @@ namespace Application.Model
                 _realTimePacket = new DataPacket();
                 _connection.ReceiveData(_realTimePacket, 1);
             }
+            _realTimePacket.decode();
+            NotifyPropertyChanged(nameof(realTimePacket));
         }
 
         private void recordThread(object sender, ElapsedEventArgs e)

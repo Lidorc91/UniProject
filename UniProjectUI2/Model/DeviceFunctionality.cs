@@ -181,6 +181,57 @@ namespace Application.Model
         }
         public void ModelTest(){
             TestText = "Clicked";            
-        }       
+        }
+
+        // Print to CSV - ADD & TEST
+
+        void PrintToCSV(int[,] array)
+        {
+
+            var rows = array.GetLength(0);
+            var cols = array.GetLength(1);
+            
+            csvname = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv";
+            // Get the current directory
+            string currentDirectory = Directory.GetCurrentDirectory();
+            string currentfilepath = System.IO.Path.Combine(currentDirectory, csvname);
+
+            using (StreamWriter file = new StreamWriter(currentfilepath))
+            {
+                file.AutoFlush = true;
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < cols; j++)
+                    {
+                        file.Write($"{array[i, j]},");
+                    }
+                    file.Write("\n");
+                }
+            }
+
+            // Define paths to the 'Log' and 'Analysefolder' directories
+            string logFolderPath = System.IO.Path.Combine(currentDirectory, "Log");
+            string logFilePath = System.IO.Path.Combine(logFolderPath, csvname);
+
+            using (StreamWriter file = new StreamWriter(logFilePath))
+            {
+                file.AutoFlush = true;
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < cols; j++)
+                    {
+                        file.Write($"{array[i, j]},");
+                    }
+                    file.Write("\n");
+                }
+            }
+            //update Most_Recent_Output.txt
+            string outputFilePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Most_Recent_Output.txt");
+            using (StreamWriter outputFile = new StreamWriter(outputFilePath, false)) // 'true' for append mode
+            {
+                outputFile.WriteLine(csvname); // Write the full path of the CSV file
+            }
+
+        }
     }
 }

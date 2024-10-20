@@ -25,7 +25,7 @@ namespace Application.Model
 
         //Real-Time Variables
         private volatile bool isRTReading = false;
-        private DataPacket _realTimePacket;
+        private DataPacket _realTimePacket = new DataPacket();
         public DataPacket realTimePacket
         {
             get
@@ -84,11 +84,14 @@ namespace Application.Model
             //Case 2 - Real Time Reading ONLY
             }
             else{
-                _connection.EmptyIncomingDataBuffer();
-                Thread.Sleep(10);
-                //Get Packet from connection manager
-                _realTimePacket = new DataPacket();
-                _connection.ReceiveData(_realTimePacket, 1);
+                lock (_lock)
+                {
+                    _connection.EmptyIncomingDataBuffer();
+                    Thread.Sleep(10);
+                    //Get Packet from connection manager
+                    //_realTimePacket = new DataPacket(); //REUSE PACKET !
+                    _connection.ReceiveData(_realTimePacket, 1);
+                }
             }
             _realTimePacket.decode();
             NotifyPropertyChanged(nameof(realTimePacket));

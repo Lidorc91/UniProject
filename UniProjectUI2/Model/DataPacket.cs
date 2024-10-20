@@ -39,7 +39,7 @@ namespace Application.Model
 
         public void decode()
         {
-            if(_processedData != null) return;
+            if(_rawData == null) return;
 
             _processedData = new int[PD_SIZE];
             string[] hexString = new string[PACKET_SIZE];

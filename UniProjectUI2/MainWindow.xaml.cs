@@ -92,6 +92,36 @@ namespace UniProjectUI2
             DevGraph.Plot.Title("Detectors' intensity");
             DevGraph.Plot.XLabel("Time [sec]");
             DevGraph.Plot.YLabel("Intensity [a.u]");
+            // DevGraph.Plot.Axes.Bottom.Label.OffsetY = 4;
+            DevGraph.Plot.Axes.SetLimitsY(bottom: 0, top: 33000);
+            //adding the axies
+            RightAxis axis1 = (RightAxis)DevGraph.Plot.Axes.Right;
+            //configuring the legend
+            Logger1.LegendText = "PD1";
+            Logger2.LegendText = "PD2";
+            Logger3.LegendText = "PD3";
+            Logger4.LegendText = "PD4";
+            Logger5.LegendText = "PD5";
+            DevGraph.Plot.ShowLegend();
+            DevGraph.Plot.Legend.Alignment = Alignment.UpperLeft;
+            DevGraph.Plot.ScaleFactor = 2;
+            Logger1.ViewJump(20.0);
+            Logger2.ViewJump(20.0);
+            Logger3.ViewJump(20.0);
+            Logger4.ViewJump(20.0);
+            Logger5.ViewJump(20.0);
+            DevGraph.Plot.Axes.SetLimits(-5, 100, -5, 35000);
+            DashGraph.Plot.Title("PPG");
+            DashGraph.Plot.XLabel("Time [sec]");
+            DashGraph.Plot.YLabel("Intensity [a.u]");
+            DashGraph.Plot.Axes.Title.Label.FontSize = 50;
+            DashGraph.Plot.Axes.Bottom.Label.FontSize = 50;
+            DashGraph.Plot.Axes.Left.Label.FontSize = 50;
+            DevGraph.Refresh();
+            /*
+            DevGraph.Plot.Title("Detectors' intensity");
+            DevGraph.Plot.XLabel("Time [sec]");
+            DevGraph.Plot.YLabel("Intensity [a.u]");
             DevGraph.Plot.Axes.Bottom.Label.OffsetY = 4;
             DevGraph.Plot.Axes.SetLimitsY(bottom: 0, top: 33000);
             DashGraph.Plot.XLabel("Time [sec]");
@@ -108,6 +138,7 @@ namespace UniProjectUI2
             DevGraph.Plot.Legend.Alignment = Alignment.UpperLeft;
             DevGraph.Plot.ScaleFactor = 2;
             DevGraph.Refresh();
+            */
         }
         private void UpdatePlotWithNewData(int[] data)
         {

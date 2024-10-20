@@ -76,7 +76,8 @@ namespace Application.Model
 
         public void EmptyIncomingDataBuffer()
         {
-            _serialPort.DiscardInBuffer();
+            //_serialPort.DiscardInBuffer();
+            _serialPort.ReadExisting();
         }
 
         public bool IsConnected() { return _serialPort.IsOpen; }

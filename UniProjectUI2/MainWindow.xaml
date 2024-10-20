@@ -26,8 +26,8 @@
                     <Label x:Name="BP_number" Content="0" HorizontalAlignment="Left" Margin="90,200,0,0" VerticalAlignment="Top"/>
                     <Image x:Name="BIU_Logo" HorizontalAlignment="Left" Height="93" VerticalAlignment="Top" Width="235" Stretch="Fill" Source="/biulogo.png"/>
                     <ScottPlot:WpfPlot x:Name="DashGraph" Margin="127,103,10,7" />
-          <Button x:Name="Analyse_Button" Content="Analyse" HorizontalAlignment="Left" Margin="10,261,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.599,0.616" Click="Start_Analyze"/>
-        </Grid>
+                    <Button x:Name="Analyse_Button" Content="Analyse" HorizontalAlignment="Left" Margin="10,261,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.599,0.616" Click="Start_Analyze"/>
+                </Grid>
             </TabItem>
             <TabItem x:Name="Dev_tab" Header="Developer" HorizontalContentAlignment="Stretch" Height="20" VerticalAlignment="Top">
                 <Grid Background="#FFE5E5E5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -41,8 +41,15 @@
                         <ComboBoxItem Content="0"/>
                         <ComboBoxItem Content="1"/>
                     </ComboBox>
-                    <GroupBox x:Name="LED_group" Header="LED Color" Background="#FFF3EBEB" Margin="125,116,805,350" HorizontalAlignment="Left" VerticalAlignment="Top">
-                        <Grid x:Name="led_goup_grid" Background="#FFF3EBEB"  Height="90" Width="75">
+                    <GroupBox x:Name="LED_group" Background="#FFF3EBEB" Margin="125,116,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="55" Width="75">
+                        <GroupBox.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="LED Color" Margin="0,-10,0,0" />
+                                <!-- Adjust the margin to move the header -->
+                            </DataTemplate>
+                        </GroupBox.HeaderTemplate>
+
+                        <Grid x:Name="led_goup_grid" Background="#FFF3EBEB"  Height="90" Width="75" HorizontalAlignment ="Stretch" VerticalAlignment="Stretch">
                             <RadioButton x:Name="Green_LED" Content="Green" HorizontalAlignment="Left" Margin="4,23,0,0" VerticalAlignment="Top" GroupName="lights" Checked="LEDColorChange"/>
                             <RadioButton x:Name="Red_LED" Content="Red" HorizontalAlignment="Left" Margin="4,0,0,0" VerticalAlignment="Top" GroupName="lights" IsChecked="True" Checked="LEDColorChange"/>
                         </Grid>

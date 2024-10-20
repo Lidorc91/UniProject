@@ -38,7 +38,7 @@ namespace UniProjectUI2
         DeviceViewModel vm;
         static int packetNum = 1;
         static int bytesToRead = 22 * packetNum;
-        static int pace = 1000;
+        static int pace = 100;
         static int pace2 = 10;
         static int freq2 = (1000 / pace2);
         byte[] buffer = new byte[bytesToRead];
@@ -117,7 +117,7 @@ namespace UniProjectUI2
             DevGraph.Plot.Title("Detectors' intensity");
             DevGraph.Plot.XLabel("Time [sec]");
             DevGraph.Plot.YLabel("Intensity [a.u]");
-            DevGraph.Plot.Axes.Bottom.Label.OffsetY = 4;
+           // DevGraph.Plot.Axes.Bottom.Label.OffsetY = 4;
             DevGraph.Plot.Axes.SetLimitsY(bottom: 0, top: 33000);
             //adding the axies
             RightAxis axis1 = (RightAxis)DevGraph.Plot.Axes.Right;
@@ -139,7 +139,7 @@ namespace UniProjectUI2
             DashGraph.Plot.Title("PPG");
             DashGraph.Plot.XLabel("Time [sec]");
             DashGraph.Plot.YLabel("Intensity [a.u]");
-            DashGraph.Plot.Axes.Top.Label.FontSize = 50;
+            DashGraph.Plot.Axes.Title.Label.FontSize = 50;
             DashGraph.Plot.Axes.Bottom.Label.FontSize = 50;
             DashGraph.Plot.Axes.Left.Label.FontSize = 50;
             DevGraph.Refresh();

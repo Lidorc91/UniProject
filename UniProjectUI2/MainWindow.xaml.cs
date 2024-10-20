@@ -52,7 +52,10 @@ namespace UniProjectUI2
 
             vm.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
             {
-                UpdatePlotWithNewData(vm.VM_realTimePacket);
+                if (e.PropertyName == nameof(vm.VM_realTimePacket))
+                {
+                    UpdatePlotWithNewData(vm.VM_realTimePacket);
+                }
             };
 
             InitializeComponent();
@@ -199,6 +202,9 @@ namespace UniProjectUI2
         {
             vm.TestClicked = true;
         }
+
+        private int[] VM_realTimePacket;
+        public int[] VM_RealTimePacket { get => vm.VM_realTimePacket; }
 
     }
 }

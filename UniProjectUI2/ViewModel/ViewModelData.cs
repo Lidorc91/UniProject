@@ -108,10 +108,7 @@ namespace Application.ViewModel
                 {
                     stopwatch.Start();                
                     _testClicked = value;
-                    if (_testClicked)
-                    {
-                        _manager.ModelTest();
-                    }
+                    _manager.ModelTest();
                 }                
             }
         }

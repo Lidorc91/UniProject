@@ -13,7 +13,7 @@
         <TabControl>
             <TabItem x:Name="Dashboard_tab" Header="Dashboard" HorizontalAlignment="Left" Margin="-2,-2,0,0" Width="75">
                 <Grid Background="#FFE5E5E5">
-                    <Label x:Name="OxyD_logo" Content="OxyD" Margin="250,10,53,353" FontSize="48" FontWeight="Bold"/>
+                    <Label x:Name="OxyD_logo" Content="OxyD" Margin="250,10,53,353" FontSize="48" FontWeight="Bold" Foreground =" #004128"/>
                     <Label x:Name="HR_bpm_" Content="HR[bpm]" HorizontalAlignment="Left" Margin="10,100,0,0" VerticalAlignment="Top" RenderTransformOrigin="-2.053,0.35" Width="67"/>
                     <Label x:Name="RR_bpm_" Content="RR[bpm]" HorizontalAlignment="Left" Margin="10,125,0,0" VerticalAlignment="Top" Width="67"/>
                     <Label x:Name="HRV_ms_" Content="HRV[ms]" HorizontalAlignment="Left" Margin="10,150,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.526,-0.344" Width="67"/>

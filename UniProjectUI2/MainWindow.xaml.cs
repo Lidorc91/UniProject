@@ -139,6 +139,9 @@ namespace UniProjectUI2
             DashGraph.Plot.Title("PPG");
             DashGraph.Plot.XLabel("Time [sec]");
             DashGraph.Plot.YLabel("Intensity [a.u]");
+            DashGraph.Plot.Axes.Top.Label.FontSize = 50;
+            DashGraph.Plot.Axes.Bottom.Label.FontSize = 50;
+            DashGraph.Plot.Axes.Left.Label.FontSize = 50;
             DevGraph.Refresh();
 
 

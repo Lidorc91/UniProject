@@ -412,6 +412,7 @@ namespace UniProjectUI2
             csvname = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv";
             // Get the current directory
             string currentDirectory = Directory.GetCurrentDirectory();
+            string currentfilepath = System.IO.Path.Combine(currentDirectory, csvname);
 
             // Define paths to the 'Log' and 'Analysefolder' directories
             string logFolderPath = System.IO.Path.Combine(currentDirectory, "Log");
@@ -420,6 +421,18 @@ namespace UniProjectUI2
             string analyseFilePath = System.IO.Path.Combine(analyseFolderPath, csvname);
 
             using (StreamWriter file = new StreamWriter(analyseFilePath))
+            {
+                file.AutoFlush = true;
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < cols; j++)
+                    {
+                        file.Write($"{array[i, j]},");
+                    }
+                    file.Write("\n");
+                }
+            }
+            using (StreamWriter file = new StreamWriter(currentfilepath))
             {
                 file.AutoFlush = true;
                 for (int i = 0; i < rows; i++)
@@ -575,6 +588,7 @@ namespace UniProjectUI2
             RecTime.Dispatcher.InvokeAsync(() =>
             {
                 RecTime.Content = bytesToRec.ToString();
+                Record_button.Content = ((bytesToRec/targetSize)*100).ToString() + "%";
             });
             UpdatePlotWithNewData(0.0, data);
         }
@@ -663,7 +677,6 @@ namespace UniProjectUI2
                 DashGraph.Plot.Axes.AutoScale();
                 
                 DashGraph.Refresh();
-                Analyse_Button.Content = "anal";
             });
             }
 
@@ -690,11 +703,11 @@ namespace UniProjectUI2
         {
             Analyse_Button.Content = "Starting Analysis";
             string curretDirectory = Directory.GetCurrentDirectory();
-            string analyseFolderPath = System.IO.Path.Combine(curretDirectory, "Anslysefolder");
+            string analyseFolderPath = System.IO.Path.Combine(curretDirectory, "Anslysefolder"); // not currently in use.
 
 
             // Get the most recently modified file with the ending '_PPG_output.csv'
-            string recentFile = GetMostRecentCsvFile(analyseFolderPath, "_PPG_output.csv");
+            string recentFile = GetMostRecentCsvFile(curretDirectory, "_PPG_output.csv");
 
             // Read all lines from the CSV file
             var lines = File.ReadAllLines(recentFile);

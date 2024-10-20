@@ -155,17 +155,19 @@ namespace Application.Model
             exportThread.Start();
         }
 
-        public void startRealTimeReading(){
-            isRTReading = true;
-            if(!activeDataTransfer) _connection.StartDataTransfer();
-            realTimeTimer.Enabled = true;
-
-        }
-        
-        public void stopRealTimeReading(){
-            realTimeTimer.Enabled = false;
-            if(!isRecording) _connection.StopDataTransfer();
-            isRTReading = false;
+        public void RealTimeReading(bool action){
+            if (action)
+            {
+                isRTReading = true;
+                if(!activeDataTransfer) _connection.StartDataTransfer();
+                realTimeTimer.Enabled = true;
+            }
+            else
+            {
+                realTimeTimer.Enabled = false;
+                if (!isRecording) _connection.StopDataTransfer();
+                isRTReading = false;
+            }
         }
 
         //Testing

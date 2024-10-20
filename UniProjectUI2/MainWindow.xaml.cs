@@ -25,6 +25,7 @@ using Application.Model;
 using System.Collections.Generic;
 using System.Diagnostics;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.ComponentModel;
 
 namespace UniProjectUI2
 {
@@ -42,24 +43,17 @@ namespace UniProjectUI2
         readonly ScottPlot.Plottables.DataLogger Logger3;
         readonly ScottPlot.Plottables.DataLogger Logger4;
         readonly ScottPlot.Plottables.DataLogger Logger5;
-        
-        private int[] _latestPacket;
-        public int[] VM_realTimePacket{
-            get => _latestPacket;
-            set{
-                if(_latestPacket != value){
-                    _latestPacket=value;
-                    UpdatePlotWithNewData(_latestPacket);
-                }
-            }
-        }
-
         #endregion
        
         public MainWindow()
         {
             vm = new DeviceViewModel(new DeviceManager());
             DataContext = vm;
+
+            vm.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
+            {
+                UpdatePlotWithNewData(vm.VM_realTimePacket);
+            };
 
             InitializeComponent();
 
@@ -99,7 +93,7 @@ namespace UniProjectUI2
             DevGraph.Plot.Axes.SetLimitsY(bottom: 0, top: 33000);
             DashGraph.Plot.XLabel("Time [sec]");
             DashGraph.Plot.YLabel("Absorption Coefficient [1/m]");
-            //adding the axies
+            //adding the axis
             RightAxis axis1 = (RightAxis)DevGraph.Plot.Axes.Right;
             //configuring the legend
             Logger1.LegendText = "PD1";
@@ -129,8 +123,8 @@ namespace UniProjectUI2
         }
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            Play_button.Content = vm.StartReading ? "Play" : "Halt"; 
-            vm.StartReading = !vm.StartReading;
+            Play_button.Content = vm.IsReading ? "Play" : "Halt"; 
+            vm.IsReading = !vm.IsReading;
         }
         
         private void StartRecord(object sender, RoutedEventArgs e)

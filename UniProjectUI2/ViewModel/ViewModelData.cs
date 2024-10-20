@@ -18,6 +18,9 @@ namespace Application.ViewModel
     {
         private DeviceManager _manager;
 
+        //Testing
+        private Stopwatch stopwatch = new Stopwatch();
+
         public DeviceViewModel(DeviceManager manager)
         {
             this._manager = manager;
@@ -25,42 +28,24 @@ namespace Application.ViewModel
             {
                 NotifyPropertyChanged("VM_" + e.PropertyName);
             };
-            InitializeDefaultValues();
-
-            //Testing
-            Stopwatch stopwatch = new Stopwatch();         
+            InitializeDefaultValues();        
         }
 
         private void InitializeDefaultValues(){
-            DefaultLED();
-            _startReading = false;
+            _isReading = false;
         }
 
-        private void DefaultLED(){
-            _selectedLED = "Red"; // Directly set the backing field
-            NotifyPropertyChanged(nameof(SelectedLED)); // Notify the UI of the change
-        }
-
-        //Data Binding Variables
-        private int[] _latestPacket;
-        private string _selectedLED;
-        private byte _current;
-
-        private bool _startReading;
-        public bool StartReading
+        private bool _isReading;
+        public bool IsReading
         {
             get{
-                return _startReading;
+                return _isReading;
             }
             set{
-                if(_startReading != value)
-                {                    
-                    _startReading = value;
-                    if(_startReading){
-                      _manager.startRealTimeReading();
-                    }else{
-                      _manager.stopRealTimeReading();
-                    }                        
+                if(_isReading != value)
+                {
+                    _isReading = value;
+                    _manager.RealTimeReading(_isReading);
                 }                
             }
         }
@@ -70,38 +55,25 @@ namespace Application.ViewModel
         {
             get
             {
-                return _latestPacket;
+                return _manager.realTimePacket.GetProcessedData();
             }
             set
             {
-                _latestPacket = value;
-                NotifyPropertyChanged("VM_realTimePacket");
             }
         }
         //Commands to Model
         //Led selection
         public string SelectedLED
         {
-            get
-            {
-                return _selectedLED;
-            }
             set
             {
-                if(_selectedLED != value)
-                {                    
-                    _selectedLED = value;
-                    _manager.ChangeLed(_selectedLED);
-                }                
+                _manager.ChangeLed(value);                
             }
         }
         //Generic Event-Caller - for LED, Current and Resistance
+        private byte _current;
         public byte Current
         {
-            get
-            {
-                return _current;
-            }
             set
             {
                 if(_current != value)
@@ -134,7 +106,7 @@ namespace Application.ViewModel
             set{
                 if(_testClicked != value)
                 {
-                    //stopwatch.Start();                
+                    stopwatch.Start();                
                     _testClicked = value;
                     if (_testClicked)
                     {
@@ -144,19 +116,14 @@ namespace Application.ViewModel
             }
         }
 
-        private string _testText;
         public string VM_TestText
         {
             get{
-                return _testText;
+                stopwatch.Stop();
+                return stopwatch.ElapsedMilliseconds.ToString();
             }
-            set{
-                if(_testText != value)
-                {
-                    _testText = value;
-                    NotifyPropertyChanged(nameof(VM_TestText));                    
-                }                
-            }
+            set { }
+            
         }
     }
 }

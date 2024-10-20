@@ -51,7 +51,10 @@ namespace Application.Model
 
             try
             {
+                lock (_lock)
+                {
                 _connection.SendCommand(dataToSend);
+                }
                 Thread.Sleep(250);
                 Console.WriteLine("Operation Successful");
             }

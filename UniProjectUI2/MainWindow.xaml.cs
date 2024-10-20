@@ -94,7 +94,9 @@ namespace UniProjectUI2
             DevGraph.Plot.YLabel("Intensity [a.u]");
             DevGraph.Plot.Axes.Bottom.Label.OffsetY = 4;
             DevGraph.Plot.Axes.SetLimitsY(bottom: 0, top: 33000);
-            //adding the axies
+            DashGraph.Plot.XLabel("Time [sec]");
+            DashGraph.Plot.YLabel("Absorption Coefficient [1/m]");
+            //adding the axis
             RightAxis axis1 = (RightAxis)DevGraph.Plot.Axes.Right;
             //configuring the legend
             Logger1.LegendText = "PD1";
@@ -105,15 +107,6 @@ namespace UniProjectUI2
             DevGraph.Plot.ShowLegend();
             DevGraph.Plot.Legend.Alignment = Alignment.UpperLeft;
             DevGraph.Plot.ScaleFactor = 2;
-            Logger1.ViewJump(20.0);
-            Logger2.ViewJump(20.0);
-            Logger3.ViewJump(20.0);
-            Logger4.ViewJump(20.0);
-            Logger5.ViewJump(20.0);
-            DevGraph.Plot.Axes.SetLimits(-5, 100, -5, 35000);
-            DashGraph.Plot.Title("PPG");
-            DashGraph.Plot.XLabel("Time [sec]");
-            DashGraph.Plot.YLabel("Intensity [a.u]");
             DevGraph.Refresh();
         }
         private void UpdatePlotWithNewData(int[] data)

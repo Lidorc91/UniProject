@@ -21,12 +21,13 @@ namespace Application.Model
 
         public byte[] GetRawData()
         {
+            //if(_rawData == null) return null;
             return _rawData;
         }
 
         public void setRawData(byte[] sourceData, int length)
         {
-            Array.Copy(sourceData, _rawData, length);
+            Array.Copy(sourceData,0 ,_rawData,0, length);
         }
 
         public int[] GetProcessedData()

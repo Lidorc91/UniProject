@@ -22,10 +22,11 @@ namespace Application.Model
         private readonly object _lock = new object();
         private volatile int recordPacketsToRead;
         private DataPacket latestPacket;
+        DataPacket recordPacket = new DataPacket(); //record buffer
 
         //Real-Time Variables
         private volatile bool isRTReading = false;
-        private DataPacket _realTimePacket = new DataPacket();
+        private DataPacket _realTimePacket = new DataPacket(); //real-time buffer
         public DataPacket realTimePacket
         {
             get
@@ -79,7 +80,7 @@ namespace Application.Model
             if(isRecording){
                 //Get Packet from record thread
                 lock (_lock){
-                  _realTimePacket = new DataPacket(latestPacket.GetRawData());
+                   if(latestPacket != null) _realTimePacket.setRawData(latestPacket.GetRawData(), DataPacket.PACKET_SIZE);
                 }
             //Case 2 - Real Time Reading ONLY
             }
@@ -99,18 +100,20 @@ namespace Application.Model
 
         private void recordThread(object sender, ElapsedEventArgs e)
         {
-            DataPacket recordPacket = new DataPacket();
+            
             if(recordPacketsToRead > 0){
-                    //Read
+                
+                //Read
+                lock (_lock){
                     _connection.ReceiveData(recordPacket,1);
                     //Save to Shared Packet
-                    lock (_lock){
-                    latestPacket = recordPacket;
-                   }
-                   //Save Data
-                    recordQueue.Add(new DataPacket(recordPacket.GetRawData()));
-                   //Decrement record counter
-                   --recordPacketsToRead;                    
+                    if(latestPacket == null) latestPacket = new DataPacket();
+                    latestPacket.setRawData(recordPacket.GetRawData(), DataPacket.PACKET_SIZE); //copy entirely not just the raw data
+                }
+               //Save Data
+                recordQueue.Add(new DataPacket(recordPacket.GetRawData()));
+               //Decrement record counter
+               --recordPacketsToRead;                    
                 }else{
                     isRecording = false;
                     recordTimer.Enabled = false;

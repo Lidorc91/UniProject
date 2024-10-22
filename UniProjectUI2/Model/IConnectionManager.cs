@@ -15,5 +15,9 @@ namespace Application.Model
         void EmptyIncomingDataBuffer();
         bool IsConnected();
         static abstract IConnectionManager GetInstance();
-	}
+
+        //Testing
+        bool AvailableData();
+
+    }
 }

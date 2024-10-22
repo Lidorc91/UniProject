@@ -19,15 +19,22 @@ namespace Application.Model
             _rawData = data;
         }
 
+        //Get copy of the raw data
         public byte[] GetRawData()
         {
             //if(_rawData == null) return null;
+            return _rawData.Clone() as byte[];
+        }
+
+        //Use Packet as Buffer
+        public byte[] GetRawDataRef()
+        {
             return _rawData;
         }
 
-        public void setRawData(byte[] sourceData, int length)
+        public void setRawData(byte[] sourceData)
         {
-            Array.Copy(sourceData,0 ,_rawData,0, length);
+            Array.Copy(sourceData,0 ,_rawData,0, PACKET_SIZE);
         }
 
         public int[] GetProcessedData()
@@ -68,7 +75,7 @@ namespace Application.Model
         //Discard raw data after decoding to save memory
         public void clearRawData()
         {
-            _rawData = null;
+            _rawData = new byte[PACKET_SIZE];
         }
 
     }

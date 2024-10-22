@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Automation;
 using System.Timers;
 using System.IO;
+using System.Threading;
 
 namespace Application.Model
 {
@@ -21,8 +22,10 @@ namespace Application.Model
         BlockingCollection<DataPacket> recordQueue = new BlockingCollection<DataPacket>();
         private readonly object _lock = new object();
         private volatile int recordPacketsToRead;
-        private DataPacket latestPacket;
+        private DataPacket latestPacket = new DataPacket();
         DataPacket recordPacket = new DataPacket(); //record buffer
+        private readonly ManualResetEventSlim _dataAvailable = new ManualResetEventSlim(false);
+        private volatile int recTime = 0;
 
         //Real-Time Variables
         private volatile bool isRTReading = false;
@@ -79,9 +82,12 @@ namespace Application.Model
             //Case 1 - Active Recording 
             if(isRecording){
                 //Get Packet from record thread
-                lock (_lock){
-                   if(latestPacket != null) _realTimePacket.setRawData(latestPacket.GetRawData(), DataPacket.PACKET_SIZE);
+                _dataAvailable.Wait();
+                lock (_lock)
+                {
+                   _realTimePacket.setRawData(latestPacket.GetRawDataRef());
                 }
+                _dataAvailable.Reset();
             //Case 2 - Real Time Reading ONLY
             }
             else{
@@ -95,31 +101,35 @@ namespace Application.Model
                 }
             }
             _realTimePacket.decode();
+            
             NotifyPropertyChanged(nameof(realTimePacket));
         }
 
         private void recordThread(object sender, ElapsedEventArgs e)
         {
-            
-            if(recordPacketsToRead > 0){
-                
+            if (recordPacketsToRead > 0)
+            {
                 //Read
-                lock (_lock){
-                    _connection.ReceiveData(recordPacket,1);
+                lock (_lock)
+                {
+                    while (!_connection.AvailableData()) { }
+                    _connection.ReceiveData(recordPacket, 1);
                     //Save to Shared Packet
-                    if(latestPacket == null) latestPacket = new DataPacket();
-                    latestPacket.setRawData(recordPacket.GetRawData(), DataPacket.PACKET_SIZE); //copy entirely not just the raw data
+                    latestPacket.setRawData(recordPacket.GetRawDataRef()); //copy entirely not just the raw data
+                    _dataAvailable.Set();
                 }
-               //Save Data
                 recordQueue.Add(new DataPacket(recordPacket.GetRawData()));
-               //Decrement record counter
-               --recordPacketsToRead;                    
-                }else{
-                    isRecording = false;
-                    recordTimer.Enabled = false;
-                    if(!isRTReading) _connection.StopDataTransfer();
-                }                
+                //Decrement record counter
+                --recordPacketsToRead;
+            }
+            else
+            {
+                isRecording = false;
+                recordTimer.Enabled = false;
+                if (!isRTReading) _connection.StopDataTransfer();
+            }
         }
+        
 
 
         //Record Functionality
@@ -127,9 +137,11 @@ namespace Application.Model
         {
             if(!activeDataTransfer) _connection.StartDataTransfer();
             recordPacketsToRead = 100*time;
+            recTime = time;
             isRecording = true;
             recordTimer.Enabled = true;
 
+            
             //Process & Export
             Thread exportThread = new Thread(delegate ()
             {
@@ -149,6 +161,7 @@ namespace Application.Model
                         file.Write("\n");
                     }
                 }
+                recordQueue = new BlockingCollection<DataPacket>(); // clear old queue
             });
             exportThread.Start();
         }

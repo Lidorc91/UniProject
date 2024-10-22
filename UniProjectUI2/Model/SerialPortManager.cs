@@ -5,6 +5,14 @@ namespace Application.Model
 {
     partial class SerialPortManager
     {
+        //Testing
+        public bool AvailableData()
+        {
+            int x = this._serialPort.BytesToRead;
+            if(_serialPort.BytesToRead == 0) return false;
+            return true;
+        }
+
         /*  Variable Declaration  */
         private SerialPort _serialPort;
         private String _port { get; set; }
@@ -71,7 +79,7 @@ namespace Application.Model
 
         public int ReceiveData(DataPacket buffer, int PacketsToRead)
         {
-            return _serialPort.Read(buffer.GetRawData(), 0, PacketsToRead * DataPacket.PACKET_SIZE);
+            return _serialPort.Read(buffer.GetRawDataRef(), 0, PacketsToRead * DataPacket.PACKET_SIZE);
         }
 
         public void EmptyIncomingDataBuffer()

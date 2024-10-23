@@ -8,8 +8,7 @@ namespace Application.Model
         //Testing
         public bool AvailableData()
         {
-            int x = this._serialPort.BytesToRead;
-            if(_serialPort.BytesToRead == 0) return false;
+            if(_serialPort.BytesToRead < DataPacket.PACKET_SIZE) return false;
             return true;
         }
 

@@ -32,12 +32,12 @@
             <TabItem x:Name="Dev_tab" Header="Developer" HorizontalContentAlignment="Stretch" Height="20" VerticalAlignment="Top">
                 <Grid Background="#FFE5E5E5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <Label x:Name="Sensor_version" Content="Sensor Version" HorizontalAlignment="Left" Margin="10,75,0,0" VerticalAlignment="Top" Height="24"/>
-                    <Label x:Name="Recording_time" Content="Recording Time" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" Height="24"/>
-                    <Label x:Name="Current" Content="Current[mA]" HorizontalAlignment="Left" Margin="10,25,0,0" VerticalAlignment="Top" Height="24"/>
-                    <TextBox x:Name="Current_inputbox" HorizontalAlignment="Left" Margin="120,25,0,0" TextWrapping="Wrap" Text="10" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox" LostFocus="ChCurrent"/>
-                    <TextBox x:Name="Recording_time_inputbox" HorizontalAlignment="Left" Margin="120,50,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox" LostFocus="RecordTimeChanged"/>
+                    <Label x:Name="Recording_time" Content="Recording Time [sec]" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" Height="25"/>
+                    <Label x:Name="Current" Content="Current[mA]" HorizontalAlignment="Left" Margin="10,25,0,0" VerticalAlignment="Top" Height="25"/>
+                    <TextBox x:Name="Current_inputbox" HorizontalAlignment="Left" Margin="130,25,0,0" TextWrapping="Wrap" Text="10" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox" LostFocus="ChCurrent"/>
+                    <TextBox x:Name="Recording_time_inputbox" HorizontalAlignment="Left" Margin="130,50,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="80" Height="24" PreviewTextInput="CurrentValidationTextBox" LostFocus="RecordTimeChanged"/>
                     <Label x:Name="RecTime" Content="Not Recording" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Height="24"/>
-                    <ComboBox x:Name="Sensor_version1" HorizontalAlignment="Left" Margin="120,75,0,0" VerticalAlignment="Top" Width="80" Height="24" SelectedIndex="0">
+                    <ComboBox x:Name="Sensor_version1" HorizontalAlignment="Left" Margin="130,75,0,0" VerticalAlignment="Top" Width="80" Height="24" SelectedIndex="0">
                         <ComboBoxItem Content="0"/>
                         <ComboBoxItem Content="1"/>
                     </ComboBox>
@@ -69,8 +69,8 @@
                         <ComboBoxItem Content="200"/>
                         <ComboBoxItem Content="100"/>
                     </ComboBox>
-                    <Label x:Name="RTIA_labal" Content="RTIA[Kohm]" HorizontalAlignment="Left" Margin="10,275,0,0" VerticalAlignment="Top" Height="24"/>
-                    <Label x:Name="RINT_labal" Content="RINT[Kohm]" HorizontalAlignment="Left" Margin="10,325,0,0" VerticalAlignment="Top" Height="24"/>
+                    <Label x:Name="RTIA_labal" Content="RTIA[Kohm]" HorizontalAlignment="Left" Margin="10,275,0,0" VerticalAlignment="Top" Height="26"/>
+                    <Label x:Name="RINT_labal" Content="RINT[Kohm]" HorizontalAlignment="Left" Margin="10,325,0,0" VerticalAlignment="Top" Height="25"/>
                     <ScottPlot:WpfPlot x:Name="DevGraph" Margin="251,-10,30,36" />
                 </Grid>
             </TabItem>

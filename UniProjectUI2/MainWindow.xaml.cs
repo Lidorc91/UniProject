@@ -590,8 +590,7 @@ namespace UniProjectUI2
             TimeSpan elapsedRecTime = DateTime.Now - startTime;
             RecTime.Dispatcher.InvokeAsync(() =>
             {
-                RecTime.Content = bytesToRec.ToString();
-                Record_button.Content = ((bytesToRec/targetSize)*100).ToString() + "%";
+                RecTime.Content = elapsedRecTime.ToString();
             });
             UpdatePlotWithNewData(0.0, data);
         }

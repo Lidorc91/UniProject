@@ -38,7 +38,7 @@ namespace UniProjectUI2
         DeviceViewModel vm;
         static int packetNum = 1;
         static int bytesToRead = 22 * packetNum;
-        static int pace = 100;
+        static int pace = 1000;
         static int pace2 = 10;
         static int freq2 = (1000 / pace2);
         byte[] buffer = new byte[bytesToRead];
@@ -112,6 +112,22 @@ namespace UniProjectUI2
             // Allow the input only if it passes both checks
             e.Handled = !(isValidInteger && isInRange);
         }
+        private void ValidateRecordingTimeInput(object sender, TextCompositionEventArgs e)
+        {
+            // Combine existing text with new input
+            string newText = Recording_time_inputbox.Text + e.Text;
+
+            // Check if the input is numeric
+            Regex regex = new Regex(@"^\d+$");
+            bool isValidInteger = regex.IsMatch(newText);
+
+            // Check if the value is non-negative
+            bool isNonNegative = int.TryParse(newText, out int value) && value >= 0;
+
+            // Reject input if it doesn't meet criteria
+            e.Handled = !(isValidInteger && isNonNegative);
+        }
+
         private void InitializePlot()
         {
             DevGraph.Plot.Title("Detectors' intensity");
@@ -130,18 +146,19 @@ namespace UniProjectUI2
             DevGraph.Plot.ShowLegend();
             DevGraph.Plot.Legend.Alignment = Alignment.UpperLeft;
             DevGraph.Plot.ScaleFactor = 2;
-            Logger1.ViewJump(20.0);
-            Logger2.ViewJump(20.0);
-            Logger3.ViewJump(20.0);
-            Logger4.ViewJump(20.0);
-            Logger5.ViewJump(20.0);
+            Logger1.ViewJump(60.0);
+            Logger2.ViewJump(60.0);
+            Logger3.ViewJump(60.0);
+            Logger4.ViewJump(60.0);
+            Logger5.ViewJump(60.0);
             DevGraph.Plot.Axes.SetLimits(-5, 100, -5, 35000);
             DashGraph.Plot.Title("PPG");
             DashGraph.Plot.XLabel("Time [sec]");
-            DashGraph.Plot.YLabel("Intensity [a.u]");
             DashGraph.Plot.Axes.Title.Label.FontSize = 50;
             DashGraph.Plot.Axes.Bottom.Label.FontSize = 50;
             DashGraph.Plot.Axes.Left.Label.FontSize = 50;
+            DashGraph.Plot.Axes.Bottom.TickLabelStyle.FontSize = 35;
+            DashGraph.Plot.Axes.Left.TickLabelStyle.FontSize = 35;
             DevGraph.Refresh();
 
 
@@ -590,7 +607,7 @@ namespace UniProjectUI2
             TimeSpan elapsedRecTime = DateTime.Now - startTime;
             RecTime.Dispatcher.InvokeAsync(() =>
             {
-                RecTime.Content = elapsedRecTime.ToString();
+                RecTime.Content = elapsedRecTime.ToString("mm\\:ss\\.f");
             });
             UpdatePlotWithNewData(0.0, data);
         }
@@ -630,7 +647,7 @@ namespace UniProjectUI2
             TimeSpan elapsedRecTime = DateTime.Now - startTime;
             RecTime.Dispatcher.InvokeAsync(() =>
             {
-                RecTime.Content = elapsedRecTime.ToString();
+                RecTime.Content = elapsedRecTime.ToString("mm\\:ss\\.f");
                 Record_button.Content = "Record";
                 Record_button.IsEnabled = true;
             });
@@ -703,7 +720,6 @@ namespace UniProjectUI2
         }
         private void Start_Analyze(object sender, RoutedEventArgs e)
         {
-            Analyse_Button.Content = "Starting Analysis";
             string curretDirectory = Directory.GetCurrentDirectory();
             string analyseFolderPath = System.IO.Path.Combine(curretDirectory, "Anslysefolder"); // not currently in use.
 

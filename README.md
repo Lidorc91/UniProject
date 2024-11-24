@@ -1,4 +1,4 @@
-# University Project: [Project Name]
+# University Project: Software Interface for Optical Bio-Sensor
 
 Welcome to our university project repository! This project is built using **C#** and follows the **MVVM pattern**. The repository consists of multiple projects, but the main **GUI project** is located in `UniprojectUI2`.
 

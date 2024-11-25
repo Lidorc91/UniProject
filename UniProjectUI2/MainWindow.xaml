@@ -14,26 +14,26 @@
             <TabItem x:Name="Dashboard_tab" Header="Dashboard" HorizontalAlignment="Left" Margin="-2,-2,0,0" Width="75">
                 <Grid Background="#FFE5E5E5">
                     <Label x:Name="OxyD_logo" Content="OxyD" Margin="250,10,53,353" FontSize="48" FontWeight="Bold" Foreground =" #004128"/>
-                    <Label x:Name="HR_bpm_" Content="HR [bpm]" HorizontalAlignment="Left" Margin="10,100,0,0" VerticalAlignment="Top" RenderTransformOrigin="-2.053,0.35" Width="100" FontSize="16"/>
-                    <Label x:Name="RR_bpm_" Content="RR [bpm]" HorizontalAlignment="Left" Margin="10,125,0,0" VerticalAlignment="Top" Width="100" FontSize="16"/>
-                    <Label x:Name="HRV_ms_" Content="HRV [ms]" HorizontalAlignment="Left" Margin="10,150,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.526,-0.344" Width="100" FontSize="16"/>
-                    <Label x:Name="SpO2___" HorizontalAlignment="Left" Margin="10,175,50,0" VerticalAlignment="Top" Width="100" FontSize="16">
-                        <TextBlock>
+                    <Label x:Name="HR_bpm_" Content="HR [bpm]" HorizontalAlignment="Left" Margin="10,100,0,0" VerticalAlignment="Top" RenderTransformOrigin="-2.053,0.35" Width="115" FontSize="24"/>
+                    <Label x:Name="RR_bpm_" Content="RR [bpm]" HorizontalAlignment="Left" Margin="10,150,0,0" VerticalAlignment="Top" Width="115" FontSize="24"/>
+                    <Label x:Name="HRV_ms_" Content="HRV [ms]" HorizontalAlignment="Left" Margin="10,200,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.526,-0.344" Width="120" FontSize="24"/>
+                    <Label x:Name="SpO2___" HorizontalAlignment="Left" Margin="10,250,0,0" VerticalAlignment="Top" Width="108" FontSize="24">
+                        <TextBlock Width="119">
         SpO<InlineUIContainer>
-            <TextBlock Text="2" FontSize="12" />
+            <TextBlock Text="2" FontSize="24" />
         </InlineUIContainer>
         [%]
     </TextBlock>
                     </Label>
-                    <Label x:Name="BP_mmHg_" Content="BP[mmHg]" HorizontalAlignment="Left" Margin="10,200,0,0" VerticalAlignment="Top" Width="100" FontSize="16"/>
-                    <Label x:Name="SpO2_number" Content="0" HorizontalAlignment="Left" Margin="100,175,0,0" VerticalAlignment="Top" FontSize="16"/>
-                    <Label x:Name="HRV_number" Content="0" HorizontalAlignment="Left" Margin="100,150,0,0" VerticalAlignment="Top" FontSize="16"/>
-                    <Label x:Name="RR_number" Content="0" HorizontalAlignment="Left" Margin="100,125,0,0" VerticalAlignment="Top" FontSize="16"/>
-                    <Label x:Name="HR_number" Content="0" HorizontalAlignment="Left" Margin="100,100,0,0" VerticalAlignment="Top" FontSize="16"/>
-                    <Label x:Name="BP_number" Content="0" HorizontalAlignment="Left" Margin="100,200,0,0" VerticalAlignment="Top" FontSize="16"/>
+                    <Label x:Name="BP_mmHg_" Content="BP[mmHg]" HorizontalAlignment="Left" Margin="10,300,0,0" VerticalAlignment="Top" Width="131" FontSize="24"/>
+                    <Label x:Name="SpO2_number" Content="0" HorizontalAlignment="Left" Margin="130,250,0,0" VerticalAlignment="Top" FontSize="24"/>
+                    <Label x:Name="HRV_number" Content="0" HorizontalAlignment="Left" Margin="130,200,0,0" VerticalAlignment="Top" FontSize="24"/>
+                    <Label x:Name="RR_number" Content="0" HorizontalAlignment="Left" Margin="130,150,0,0" VerticalAlignment="Top" FontSize="24"/>
+                    <Label x:Name="HR_number" Content="0" HorizontalAlignment="Left" Margin="130,100,0,0" VerticalAlignment="Top" FontSize="24"/>
+                    <Label x:Name="BP_number" Content="0" HorizontalAlignment="Left" Margin="130,300,0,0" VerticalAlignment="Top" FontSize="24"/>
                     <Image x:Name="BIU_Logo" HorizontalAlignment="Left" Height="93" VerticalAlignment="Top" Width="235" Stretch="Fill" Source="/biulogo.png"/>
-                    <ScottPlot:WpfPlot x:Name="DashGraph" Margin="140,103,10,7" />
-                    <Button x:Name="Analyse_Button" Content="Display" HorizontalAlignment="Left" Margin="10,261,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.599,0.616" Click="Start_Analyze" FontSize="20"/>
+                    <ScottPlot:WpfPlot x:Name="DashGraph" Margin="193,103,10,7" />
+                    <Button x:Name="Analyse_Button" Content="Display" HorizontalAlignment="Left" Margin="18,443,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.599,0.616" Click="Start_Analyze" FontSize="30"/>
                 </Grid>
             </TabItem>
             <TabItem x:Name="Dev_tab" Header="Developer" HorizontalContentAlignment="Stretch">

@@ -33,7 +33,7 @@
                     <Label x:Name="BP_number" Content="0" HorizontalAlignment="Left" Margin="100,200,0,0" VerticalAlignment="Top" FontSize="16"/>
                     <Image x:Name="BIU_Logo" HorizontalAlignment="Left" Height="93" VerticalAlignment="Top" Width="235" Stretch="Fill" Source="/biulogo.png"/>
                     <ScottPlot:WpfPlot x:Name="DashGraph" Margin="140,103,10,7" />
-                    <Button x:Name="Analyse_Button" Content="Analyse" HorizontalAlignment="Left" Margin="10,261,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.599,0.616" Click="Start_Analyze" FontSize="20"/>
+                    <Button x:Name="Analyse_Button" Content="Display" HorizontalAlignment="Left" Margin="10,261,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.599,0.616" Click="Start_Analyze" FontSize="20"/>
                 </Grid>
             </TabItem>
             <TabItem x:Name="Dev_tab" Header="Developer" HorizontalContentAlignment="Stretch">

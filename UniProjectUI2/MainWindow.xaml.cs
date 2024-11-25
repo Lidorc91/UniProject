@@ -157,8 +157,8 @@ namespace UniProjectUI2
             DashGraph.Plot.Axes.Title.Label.FontSize = 50;
             DashGraph.Plot.Axes.Bottom.Label.FontSize = 50;
             DashGraph.Plot.Axes.Left.Label.FontSize = 50;
-            DashGraph.Plot.Axes.Bottom.TickLabelStyle.FontSize = 35;
-            DashGraph.Plot.Axes.Left.TickLabelStyle.FontSize = 35;
+            DashGraph.Plot.Axes.Bottom.TickLabelStyle.FontSize = 40;
+            DashGraph.Plot.Axes.Left.TickLabelStyle.FontSize = 40;
             DevGraph.Refresh();
 
 

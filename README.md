@@ -12,7 +12,7 @@ To explore and run the GUI project, follow the steps below:
 First, clone the repository to your local machine:
 
 ```bash
-git clone https://github.com/yourusername/your-repository.git
+git clone https://github.com/Lidorc91/UniProject.git
 ```
 
 ### 2. Checkout the Correct Branch

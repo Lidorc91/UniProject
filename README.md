@@ -44,4 +44,4 @@ Build the project and run it to see the GUI in action:
 * Press F5 or click Start to run the project.
 
 ## Demo :
-[https://www.youtube.com/watch?v=9V8oEmj3Kg0]
+https://www.youtube.com/watch?v=9V8oEmj3Kg0
